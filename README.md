@@ -1,4 +1,4 @@
-[![JSF and PrimeFaces IntelliSense](https://i.imgur.com/Au0Xglt.png "JSF and PrimeFaces IntelliSense")](https://github.com/leosj29/primefaces-intellisense)
+[![JSF and PrimeFaces IntelliSense](https://i.imgur.com/QkqSYdn.png "JSF and PrimeFaces IntelliSense")](https://github.com/leosj29/primefaces-intellisense)
 # IntelliSense for JSF and PrimeFaces
 A Visual Studio Code extension that provides PrimeFaces, Html Basic, Faces, JSTL, Composite and Facelets Templating components completion for the HTML, XHTML and JSF attribute based on the official Primefaces, JSTL and JSF taglib definitions.
 
