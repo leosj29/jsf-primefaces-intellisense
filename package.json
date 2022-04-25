@@ -2,7 +2,7 @@
 	"name": "jsf-primefaces-intellisense",
 	"displayName": "jsf-primefaces-intellisense",
 	"description": "JSF and Primefaces IntelliSense",
-	"version": "1.2.2",
+	"version": "1.0.0",
 	"publisher": "leosj29",
 	"license": "MIT",
 	"engines": {
@@ -60,7 +60,7 @@
 	},
 	"icon": "images/icon.png",
 	"repository": {
-		"url": "https://github.com/leosj29/primefaces-intellisense"
+		"url": "https://github.com/leosj29/jsf-primefaces-intellisense"
 	},
 	"main": "./out/extension.js",
 	"scripts": {
