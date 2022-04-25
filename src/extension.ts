@@ -113,7 +113,19 @@ const registerCompletionProvider = (
 		const start: Position = new Position(position.line, 0);
 		const range: Range = new Range(start, position);
 		const text: string = document.getText(range);
-		let facelet: string = text.trim();
+		let autoSearch: string = '';
+		let facelet: string = text.trimStart();
+
+		if (!facelet.includes(' ')) {
+			let ind = facelet.indexOf(':');
+			if (ind > -1 && ind + 1 < facelet.length) {
+				autoSearch = facelet.substring(ind + 1);
+				facelet = facelet.substring(0, ind + 1);
+			}
+		}
+		else {
+			facelet = text.trim();
+		}
 
 		let xmlnsTags: Map<string, string> = getXmlns(document, position);
 		let completionItems;
@@ -136,67 +148,85 @@ const registerCompletionProvider = (
 			|| facelet === tagPDoc)) {
 			// Creates a collection of CompletionItem based on the classes already cached
 			if (facelet === tagPDoc) {
-				completionItems = primeUniqueDefinitions.map((definition) => {
-					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
-					completionItem.documentation = definition.component.description;
-					const completionClassName = `${classPrefix}${definition.component.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName;
-					return completionItem;
-				});
+				completionItems = primeUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
 			}
 			else if (facelet === tagHDoc) {
-				completionItems = hUniqueDefinitions.map((definition) => {
-					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
-					completionItem.documentation = definition.component.description;
-					const completionClassName = `${classPrefix}${definition.component.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName;
-					return completionItem;
-				});
+				completionItems = hUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
 
 			}
 			else if (facelet === tagFDoc) {
-				completionItems = fUniqueDefinitions.map((definition) => {
-					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
-					completionItem.documentation = definition.component.description;
-					const completionClassName = `${classPrefix}${definition.component.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName;
-					return completionItem;
-				});
+				completionItems = fUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
 			}
 			else if (facelet === tagCDoc) {
-				completionItems = cUniqueDefinitions.map((definition) => {
-					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
-					completionItem.documentation = definition.component.description;
-					const completionClassName = `${classPrefix}${definition.component.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName;
-					return completionItem;
-				});
+				completionItems = cUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
 
 			}
 			else if (facelet === tagCCDoc) {
-				completionItems = ccUniqueDefinitions.map((definition) => {
-					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
-					completionItem.documentation = definition.component.description;
-					const completionClassName = `${classPrefix}${definition.component.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName;
-					return completionItem;
-				});
+				completionItems = ccUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
 
 			}
 			else {
-				completionItems = uiUniqueDefinitions.map((definition) => {
-					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
-					completionItem.documentation = definition.component.description;
-					const completionClassName = `${classPrefix}${definition.component.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName;
-					return completionItem;
-				});
+				completionItems = uiUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
 			}
 		}
 		// Attributes(Maybe)
