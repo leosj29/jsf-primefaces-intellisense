@@ -55,7 +55,7 @@ It's possible to specify which language modes will have autocompletion. There ar
 ## Contributions
 You can request new features and contribute to the extension development on its [repository on GitHub](https://github.com/leosj29/jsf-primefaces-intellisense/issues). Look for an issue you're interested in working on, comment on it to let me know you're working on it and submit your pull request! :D
 
-## What's new in version 1.0.0 (Apr 25, 2022)
+## What's new in version 1.0.1 (Apr 25, 2022)
 
 Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense/blob/master/CHANGELOG.md) for the current and previous updates.
 
