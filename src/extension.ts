@@ -21,6 +21,8 @@ enum Configuration {
 
 const notifier: Notifier = new Notifier(Command.cache);
 let primeUniqueDefinitions: ComponentDefinition[] = [];
+let richUniqueDefinitions: ComponentDefinition[] = [];
+let richA4JUniqueDefinitions: ComponentDefinition[] = [];
 let hUniqueDefinitions: ComponentDefinition[] = [];
 let fUniqueDefinitions: ComponentDefinition[] = [];
 let cUniqueDefinitions: ComponentDefinition[] = [];
@@ -34,6 +36,8 @@ const htmlDisposables: Disposable[] = [];
 const hTag: string = "http://java.sun.com/jsf/html";
 const fTag: string = "http://java.sun.com/jsf/core";
 const pTag: string = "http://primefaces.org/ui";
+const rTag: string = "http://richfaces.org/rich";
+const a4jTag: string = "http://richfaces.org/a4j";
 const cTag: string = "http://xmlns.jcp.org/jsp/jstl/core";
 const ccTag: string = "http://java.sun.com/jsf/composite";
 const uiTag: string = "http://java.sun.com/jsf/facelets";
@@ -46,6 +50,8 @@ async function cache(): Promise<void> {
 		console.log("Found all parseable documents.");
 
 		const primeDefinitions: ComponentDefinition[] = [];
+		const richDefinitions: ComponentDefinition[] = [];
+		const richA4JDefinitions: ComponentDefinition[] = [];
 		const hDefinitions: ComponentDefinition[] = [];
 		const fDefinitions: ComponentDefinition[] = [];
 		const cDefinitions: ComponentDefinition[] = [];
@@ -62,6 +68,8 @@ async function cache(): Promise<void> {
 			let primeVersion: any = '';
 			primeVersion = workspace.getConfiguration().get<string>(Configuration.primeVersion);
 			Array.prototype.push.apply(primeDefinitions, await ParseEngineGateway.callParser(primeVersion));
+			Array.prototype.push.apply(richDefinitions, await ParseEngineGateway.callParser("richfaces45"));
+			Array.prototype.push.apply(richA4JDefinitions, await ParseEngineGateway.callParser("richfaces45-a4j"));
 			Array.prototype.push.apply(hDefinitions, await ParseEngineGateway.callParser("h"));
 			Array.prototype.push.apply(fDefinitions, await ParseEngineGateway.callParser("f"));
 			Array.prototype.push.apply(cDefinitions, await ParseEngineGateway.callParser("c"));
@@ -74,6 +82,8 @@ async function cache(): Promise<void> {
 		}
 
 		primeUniqueDefinitions = _.uniqBy(primeDefinitions, (def) => def.component.name);
+		richUniqueDefinitions = _.uniqBy(richDefinitions, (def) => def.component.name);
+		richA4JUniqueDefinitions = _.uniqBy(richA4JDefinitions, (def) => def.component.name);
 		hUniqueDefinitions = _.uniqBy(hDefinitions, (def) => def.component.name);
 		fUniqueDefinitions = _.uniqBy(fDefinitions, (def) => def.component.name);
 		cUniqueDefinitions = _.uniqBy(cDefinitions, (def) => def.component.name);
@@ -82,6 +92,8 @@ async function cache(): Promise<void> {
 
 		console.log("Summary:");
 		console.log(primeDefinitions.length, "PrimeFaces component definitions found");
+		console.log(richDefinitions.length, "RichFaces component definitions found");
+		console.log(richA4JDefinitions.length, "RichFaces A4J component definitions found");
 		console.log(hDefinitions.length, "H Facelets component definitions found");
 		console.log(fDefinitions.length, "F Facelets component definitions found");
 		console.log(cDefinitions.length, "C Facelets component definitions found");
@@ -89,6 +101,8 @@ async function cache(): Promise<void> {
 		console.log(uiDefinitions.length, "UI Facelets component definitions found");
 
 		console.log(primeUniqueDefinitions.length, "unique PrimeFaces component definitions found");
+		console.log(richUniqueDefinitions.length, "unique RichFaces component definitions found");
+		console.log(richA4JUniqueDefinitions.length, "unique RichFaces A4J component definitions found");
 		console.log(hUniqueDefinitions.length, "unique H Facelets component definitions found");
 		console.log(fUniqueDefinitions.length, "unique F Facelets component definitions found");
 		console.log(cUniqueDefinitions.length, "unique C Facelets component definitions found");
@@ -135,6 +149,8 @@ const registerCompletionProvider = (
 		let tagHDoc = xmlnsTags.has("h") ? xmlnsTags.get('h') : "";
 		let tagFDoc = xmlnsTags.has("f") ? xmlnsTags.get('f') : "";
 		let tagPDoc = xmlnsTags.has("p") ? xmlnsTags.get('p') : "";
+		let tagRDoc = xmlnsTags.has("r") ? xmlnsTags.get('r') : "";
+		let tagA4JDoc = xmlnsTags.has("a4j") ? xmlnsTags.get('a4j') : "";
 		let tagCDoc = xmlnsTags.has("c") ? xmlnsTags.get('c') : "";
 		let tagCCDoc = xmlnsTags.has("cc") ? xmlnsTags.get('cc') : "";
 		let tagUIDoc = xmlnsTags.has("ui") ? xmlnsTags.get('ui') : "";
@@ -145,10 +161,39 @@ const registerCompletionProvider = (
 			|| facelet === tagCDoc
 			|| facelet === tagCCDoc
 			|| facelet === tagUIDoc
-			|| facelet === tagPDoc)) {
+			|| facelet === tagPDoc
+			|| facelet === tagRDoc
+			|| facelet === tagA4JDoc
+		)) {
 			// Creates a collection of CompletionItem based on the classes already cached
 			if (facelet === tagPDoc) {
 				completionItems = primeUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
+			}
+			else if (facelet === tagRDoc) {
+				completionItems = richUniqueDefinitions
+					.filter((definition) =>
+						autoSearch === '' || definition.component.name.startsWith(autoSearch))
+					.map((definition) => {
+						const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
+						completionItem.documentation = definition.component.description;
+						const completionClassName = `${classPrefix}${definition.component.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName;
+						return completionItem;
+					});
+			}
+			else if (facelet === tagA4JDoc) {
+				completionItems = richA4JUniqueDefinitions
 					.filter((definition) =>
 						autoSearch === '' || definition.component.name.startsWith(autoSearch))
 					.map((definition) => {
@@ -241,6 +286,10 @@ const registerCompletionProvider = (
 
 				if (facelet === tagPDoc) {
 					completionPItems = primeUniqueDefinitions.filter(definition => definition.component.name === component);
+				} else if (facelet === tagRDoc) {
+					completionPItems = richUniqueDefinitions.filter(definition => definition.component.name === component);
+				} else if (facelet === tagA4JDoc) {
+					completionPItems = richA4JUniqueDefinitions.filter(definition => definition.component.name === component);
 				} else if (facelet === tagHDoc) {
 					completionPItems = hUniqueDefinitions.filter(definition => definition.component.name === component);
 				}
@@ -351,6 +400,12 @@ function getXmlns(document: TextDocument, position: Position): Map<string, strin
 
 	if (allText.includes(pTag)) {
 		xmlns.set("p", getTag(allText, pTag));
+	}
+	if (allText.includes(pTag)) {
+		xmlns.set("r", getTag(allText, rTag));
+	}
+	if (allText.includes(pTag)) {
+		xmlns.set("a4j", getTag(allText, a4jTag));
 	}
 	if (allText.includes(hTag)) {
 		xmlns.set("h", getTag(allText, hTag));
