@@ -6,6 +6,8 @@ import FFaceletsParseEngine from "./types/f-facelets-parse-engine ";
 import CFaceletsParseEngine from "./types/c-facelets-parse-engine";
 import CCFaceletsParseEngine from "./types/cc-facelets-parse-engine";
 import UIFaceletsParseEngine from "./types/ui-facelets-parse-engine";
+import RichfacesParseEngine from "./types/richfaces45-engine";
+import RichfacesA4JParseEngine from './types/richfaces45-a4j-engine';
 
 class ParseEngineRegistry {
     public static getParseEngine(languageId: string): IParseEngine {
@@ -29,6 +31,8 @@ class ParseEngineRegistry {
     private static registry: IParseEngine[] = [
         new Primefaces8ParseEngine(),
         new Primefaces10ParseEngine(),
+        new RichfacesParseEngine(),
+        new RichfacesA4JParseEngine(),
         new HFaceletsParseEngine(),
         new FFaceletsParseEngine(),
         new CFaceletsParseEngine(),
