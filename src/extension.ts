@@ -397,10 +397,10 @@ function getXmlns(document: TextDocument, position: Position): Map<string, strin
 	if (allText.includes(pTag)) {
 		xmlns.set("p", getTag(allText, pTag));
 	}
-	if (allText.includes(pTag)) {
+	if (allText.includes(rTag)) {
 		xmlns.set("r", getTag(allText, rTag));
 	}
-	if (allText.includes(pTag)) {
+	if (allText.includes(a4jTag)) {
 		xmlns.set("a4j", getTag(allText, a4jTag));
 	}
 	if (allText.includes(hTag)) {
