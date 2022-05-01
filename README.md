@@ -6,6 +6,7 @@ A Visual Studio Code extension that provides PrimeFaces, Html Basic, Faces, JSTL
 
 ## Features
 * Gives you autocompletion for PrimeFaces components taglib (<p:).
+* Gives you autocompletion for RichFaces components taglib (<r:) and (<a4j:).
 * Gives you autocompletion for Html Basic components taglib (<h:).
 * Gives you autocompletion for Faces Core components taglib (<f:).
 * Gives you autocompletion for JSTL core components taglib (<c:).
@@ -13,6 +14,8 @@ A Visual Studio Code extension that provides PrimeFaces, Html Basic, Faces, JSTL
 * Gives you autocompletion for Facelets Templating components taglib (<ui:).
 * Automatic detection of xmlns (You must include the namespace mandatory).
     * PrimeFaces -> "http://primefaces.org/ui"
+    * RichFaces -> "http://richfaces.org/rich"
+    * RichFaces A4J -> "http://richfaces.org/a4j"
     * Html Basic -> "http://java.sun.com/jsf/html"
     * Faces Core -> "http://java.sun.com/jsf/core"    
     * JSTL Core -> ="http://xmlns.jcp.org/jsp/jstl/core"
