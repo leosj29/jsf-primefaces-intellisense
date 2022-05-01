@@ -5,7 +5,7 @@ import * as data from '../data/ui.json';
 
 class UIFaceletsParseEngine implements IParseEngine {
     public taglibId = "ui";
-    public async parse(version: string): Promise<ComponentDefinition[]> {
+    public parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }

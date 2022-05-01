@@ -5,7 +5,7 @@ import * as data from '../data/richfaces45-a4j.json';
 
 class RichfacesA4JParseEngine implements IParseEngine {
     public taglibId = "richfaces45-a4j";
-    public async parse(version: string): Promise<ComponentDefinition[]> {
+    public parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }

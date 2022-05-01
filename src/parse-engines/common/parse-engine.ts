@@ -2,6 +2,6 @@ import ComponentDefinition from "../../common/component-definition";
 
 interface IParseEngine {
     taglibId: string;
-    parse(version:string): Promise<ComponentDefinition[]>;
+    parse(version:string): ComponentDefinition[];
 }
 export default IParseEngine;

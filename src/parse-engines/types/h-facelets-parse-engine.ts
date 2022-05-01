@@ -5,7 +5,7 @@ import * as data from '../data/h.json';
 
 class HFaceletsParseEngine implements IParseEngine {
     public taglibId = "h";
-    public async parse(version: string): Promise<ComponentDefinition[]> {
+    public  parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }

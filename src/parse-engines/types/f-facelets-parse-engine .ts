@@ -5,7 +5,7 @@ import * as data from '../data/f.json';
 
 class FFaceletsParseEngine implements IParseEngine {
     public taglibId = "f";
-    public async parse(version: string): Promise<ComponentDefinition[]> {
+    public parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }

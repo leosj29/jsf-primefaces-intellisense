@@ -4,9 +4,9 @@ import IParseEngine from "./parse-engines/common/parse-engine";
 import ParseEngineRegistry from "./parse-engines/parse-engine-registry";
 
 class ParseEngineGateway {
-    public static async callParser(version: string): Promise<ComponentDefinition[]> {
+    public static callParser(version: string): ComponentDefinition[] {
         const parseEngine: IParseEngine = ParseEngineRegistry.getParseEngine(version);
-        const componentDefinitions: ComponentDefinition[] = await parseEngine.parse(version);
+        const componentDefinitions: ComponentDefinition[] = parseEngine.parse(version);
         return componentDefinitions;
     }
 }

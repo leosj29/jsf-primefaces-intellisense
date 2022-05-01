@@ -5,7 +5,7 @@ import * as data from '../data/primefaces10.json';
 
 class PrimefacesParseEngine implements IParseEngine {
     public taglibId = "primefaces10";
-    public async parse(version: string): Promise<ComponentDefinition[]> {
+    public parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }
