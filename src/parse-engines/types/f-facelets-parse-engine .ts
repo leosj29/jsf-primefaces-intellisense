@@ -4,11 +4,9 @@ import ComponentDefinition from "../../common/component-definition";
 import * as data from '../data/f.json';
 
 class FFaceletsParseEngine implements IParseEngine {
-    public languageId = "f";
-
+    public taglibId = "f";
     public async parse(version: string): Promise<ComponentDefinition[]> {
-        const textJson = JSON.stringify(data.components.component);
-        return ComponentExtractor.extract(textJson);
+        return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }
 export default FFaceletsParseEngine;

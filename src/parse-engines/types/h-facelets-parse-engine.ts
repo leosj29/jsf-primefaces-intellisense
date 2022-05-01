@@ -4,11 +4,9 @@ import ComponentDefinition from "../../common/component-definition";
 import * as data from '../data/h.json';
 
 class HFaceletsParseEngine implements IParseEngine {
-    public languageId = "h";
-
+    public taglibId = "h";
     public async parse(version: string): Promise<ComponentDefinition[]> {
-        const textJson = JSON.stringify(data.components.component);
-        return ComponentExtractor.extract(textJson);
+        return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }
 export default HFaceletsParseEngine;

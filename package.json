@@ -2,19 +2,22 @@
 	"name": "jsf-primefaces-intellisense",
 	"displayName": "JSF Primefaces Intellisense",
 	"description": "JSF and Primefaces IntelliSense",
-	"version": "1.0.1",
+	"version": "1.2.0",
 	"publisher": "leosj29",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.66.0"
 	},
 	"keywords": [
+		"a4j",
 		"autocomplete",
-		"html",	
+		"html",
 		"intellisense",	
 		"jsf",
-		"xhtml",
-		"primefaces"
+		"primefaces",
+		"rich",		
+		"richfaces",
+		"xhtml"
 	],
 	"categories": [
 		"Programming Languages",

@@ -1,26 +1,27 @@
 [![JSF and PrimeFaces IntelliSense](https://i.imgur.com/QkqSYdn.png "JSF and PrimeFaces IntelliSense")](https://github.com/leosj29/jsf-primefaces-intellisense)
 # IntelliSense for JSF and PrimeFaces
-A Visual Studio Code extension that provides PrimeFaces, Html Basic, Faces, JSTL, Composite and Facelets Templating components completion for the HTML, XHTML and JSF attribute based on the official Primefaces, JSTL and JSF taglib definitions.
+A Visual Studio Code extension that provides PrimeFaces, RichFaces, Html Basic, Faces, JSTL, Composite and Facelets Templating components completion for the HTML, XHTML and JSF attribute based on the official Primefaces, RichFaces, JSTL and JSF taglib definitions.
 
 ![](https://i.imgur.com/r6DrYYu.gif)
 
 ## Features
-* Gives you autocompletion for PrimeFaces components taglib (<p:).
-* Gives you autocompletion for RichFaces components taglib (<r:) and (<a4j:).
 * Gives you autocompletion for Html Basic components taglib (<h:).
 * Gives you autocompletion for Faces Core components taglib (<f:).
+* Gives you autocompletion for Facelets Templating components taglib (<ui:).
 * Gives you autocompletion for JSTL core components taglib (<c:).
 * Gives you autocompletion for Composite components taglib (<cc:).
-* Gives you autocompletion for Facelets Templating components taglib (<ui:).
-* Automatic detection of xmlns (You must include the namespace mandatory).
-    * PrimeFaces -> "http://primefaces.org/ui"
-    * RichFaces -> "http://richfaces.org/rich"
-    * RichFaces A4J -> "http://richfaces.org/a4j"
+* Gives you autocompletion for PrimeFaces components taglib (<p:).
+* Gives you autocompletion for RichFaces components taglib (<r:) and (<a4j:).
+* Automatic detection of xmlns (You must include the namespace mandatory).   
     * Html Basic -> "http://java.sun.com/jsf/html"
     * Faces Core -> "http://java.sun.com/jsf/core"    
     * JSTL Core -> ="http://xmlns.jcp.org/jsp/jstl/core"
     * Composite Components -> "http://java.sun.com/jsf/composite"
     * Facelets Templating -> "http://java.sun.com/jsf/facelets"
+    * PrimeFaces -> "http://primefaces.org/ui"
+    * RichFaces -> "http://richfaces.org/rich"
+    * RichFaces A4J -> "http://richfaces.org/a4j"
+
 * You can customize the alias name.
     ```xml
         <!DOCTYPE html>
@@ -58,12 +59,16 @@ It's possible to specify which language modes will have autocompletion. There ar
 ## Contributions
 You can request new features and contribute to the extension development on its [repository on GitHub](https://github.com/leosj29/jsf-primefaces-intellisense/issues). Look for an issue you're interested in working on, comment on it to let me know you're working on it and submit your pull request! :D
 
-## What's new in version 1.0.1 (Apr 25, 2022)
+## What's new in version 1.2.0 (Apr 30, 2022)
 
 Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense/blob/master/CHANGELOG.md) for the current and previous updates.
 
 ## Usage
 The extension will automatically display the completion options. In case the completion is not showing, you can run the command by pressing `Ctrl+Shift+P`(`Cmd+Shift+P` for Mac) and then typing "JSF and PrimeFaces Cache".
+
+## Special thanks to
+* [Per-Steinar Karlsen](https://github.com/per-steinar). 
+
 
 ### More User Settings
 The extension supports a few user settings, changes to these settings will be automatically recognized and the caching process will be re-executed.

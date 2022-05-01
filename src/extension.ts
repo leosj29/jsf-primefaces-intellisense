@@ -77,7 +77,7 @@ async function cache(): Promise<void> {
 			Array.prototype.push.apply(uiDefinitions, await ParseEngineGateway.callParser("ui"));
 
 		} catch (err) {
-			notifier.notify("alert", "Failed to cache the PrimeFaces components in the workspace (click for another attempt)");
+			notifier.notify("alert", "Failed to cache the components in the workspace (click for another attempt)");
 			throw new VError('err', "Failed to parse the documents");
 		}
 
@@ -112,10 +112,10 @@ async function cache(): Promise<void> {
 		console.log(failedLogsCount, "failed attempts to parse. List of the documents:");
 		console.log(failedLogs);
 
-		notifier.notify("zap", "PrimeFaces components cached (click to cache again)");
+		notifier.notify("zap", "Components cached (click to cache again)");
 	} catch (err) {
-		notifier.notify("alert", "Failed to cache the PrimeFaces components in the workspace (click for another attempt)");
-		throw new VError('err', "Failed to cache the PrimeFaces component definitions during the iterations over the documents that were found");
+		notifier.notify("alert", "Failed to cache the components in the workspace (click for another attempt)");
+		throw new VError('err', "Failed to cache the component definitions during the iterations over the documents that were found");
 	}
 }
 
@@ -292,17 +292,13 @@ const registerCompletionProvider = (
 					completionPItems = richA4JUniqueDefinitions.filter(definition => definition.component.name === component);
 				} else if (facelet === tagHDoc) {
 					completionPItems = hUniqueDefinitions.filter(definition => definition.component.name === component);
-				}
-				else if (facelet === tagFDoc) {
+				} else if (facelet === tagFDoc) {
 					completionPItems = fUniqueDefinitions.filter(definition => definition.component.name === component);
-				}
-				else if (facelet === tagCDoc) {
+				} else if (facelet === tagCDoc) {
 					completionPItems = cUniqueDefinitions.filter(definition => definition.component.name === component);
-				}
-				else if (facelet === tagCCDoc) {
+				} else if (facelet === tagCCDoc) {
 					completionPItems = ccUniqueDefinitions.filter(definition => definition.component.name === component);
-				}
-				else if (facelet === tagUIDoc) {
+				} else if (facelet === tagUIDoc) {
 					completionPItems = uiUniqueDefinitions.filter(definition => definition.component.name === component);
 				}
 
@@ -489,7 +485,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 		try {
 			await cache();
 		} catch (err) {
-			const newErr = new VError('err', "Failed to cache the PrimeFaces components in the workspace");
+			const newErr = new VError('err', "Failed to cache the components in the workspace");
 			console.error(newErr);
 			window.showErrorMessage(newErr.message);
 		} finally {
@@ -502,7 +498,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 	try {
 		await cache();
 	} catch (err) {
-		const newErr = new VError('err', "Failed to cache the PrimeFaces components in the workspace for the first time");
+		const newErr = new VError('err', "Failed to cache the components in the workspace for the first time");
 		console.error(newErr);
 		window.showErrorMessage(newErr.message);
 	} finally {

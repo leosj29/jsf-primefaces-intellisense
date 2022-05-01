@@ -10,11 +10,11 @@ import RichfacesParseEngine from "./types/richfaces45-engine";
 import RichfacesA4JParseEngine from './types/richfaces45-a4j-engine';
 
 class ParseEngineRegistry {
-    public static getParseEngine(languageId: string): IParseEngine {
-        const foundParseEngine = ParseEngineRegistry.registry.find((value) => value.languageId === languageId);
+    public static getParseEngine(taglibId: string): IParseEngine {
+        const foundParseEngine = ParseEngineRegistry.registry.find((value) => value.taglibId === taglibId);
 
         if (!foundParseEngine) {
-            throw new Error(`Could not find a parse engine for the provided id ("${languageId}").`);
+            throw new Error(`Could not find a parse engine for the provided id ("${taglibId}").`);
         }
         return foundParseEngine;
     }
@@ -22,7 +22,7 @@ class ParseEngineRegistry {
     public static get supportedLanguagesIds(): string[] {
         if (!ParseEngineRegistry.languagesIds) {
             ParseEngineRegistry.languagesIds = ParseEngineRegistry.registry.map(
-                (parseEngine) => parseEngine.languageId);
+                (parseEngine) => parseEngine.taglibId);
         }
         return ParseEngineRegistry.languagesIds;
     }

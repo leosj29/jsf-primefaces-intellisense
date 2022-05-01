@@ -4,11 +4,9 @@ import ComponentDefinition from "../../common/component-definition";
 import * as data from '../data/richfaces45-a4j.json';
 
 class RichfacesA4JParseEngine implements IParseEngine {
-    public languageId = "richfaces45-a4j";
-
+    public taglibId = "richfaces45-a4j";
     public async parse(version: string): Promise<ComponentDefinition[]> {
-        const textJson = JSON.stringify(data.components.component);
-        return ComponentExtractor.extract(textJson);
+        return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }
 export default RichfacesA4JParseEngine;

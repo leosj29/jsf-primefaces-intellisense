@@ -1,3 +1,8 @@
+### 1.2.0(Apr 30, 2022)
+* Add support for Richfaces Tag Library
+    *  r tags ([Richfaces](https://richfaces.jboss.org/docs))
+    *  a4j tags ([Richfaces](https://richfaces.jboss.org/docs))
+    
 ### 1.0.1(Apr 25, 2022)
 * Add support for all JavaServer Faces 2.2 Facelets Tag Library
     *  h tags ([Html Basic](https://docs.oracle.com/javaee/7/javaserver-faces-2-2/vdldocs-facelets/h/tld-frame.html))
