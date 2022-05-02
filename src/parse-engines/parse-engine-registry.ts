@@ -8,6 +8,8 @@ import CCFaceletsParseEngine from "./types/cc-facelets-parse-engine";
 import UIFaceletsParseEngine from "./types/ui-facelets-parse-engine";
 import RichfacesParseEngine from "./types/richfaces45-engine";
 import RichfacesA4JParseEngine from './types/richfaces45-a4j-engine';
+import OmnifacesFaceletsParseEngine from "./types/omnifaces-facelets-parse-engine";
+import PrimefacesExtensionsFaceletsParseEngine from "./types/primefacesExtensions-facelets-parse-engine";
 
 class ParseEngineRegistry {
     public static getParseEngine(taglibId: string): IParseEngine {
@@ -37,7 +39,9 @@ class ParseEngineRegistry {
         new FFaceletsParseEngine(),
         new CFaceletsParseEngine(),
         new CCFaceletsParseEngine(),
-        new UIFaceletsParseEngine()
+        new UIFaceletsParseEngine(),
+        new OmnifacesFaceletsParseEngine(),
+        new PrimefacesExtensionsFaceletsParseEngine()
     ];
 }
 export default ParseEngineRegistry;

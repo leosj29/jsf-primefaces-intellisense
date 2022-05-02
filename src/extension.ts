@@ -33,6 +33,8 @@ let fUniqueDefinitions: ComponentDefinition[] = [];
 let cUniqueDefinitions: ComponentDefinition[] = [];
 let ccUniqueDefinitions: ComponentDefinition[] = [];
 let uiUniqueDefinitions: ComponentDefinition[] = [];
+let omnifacesUniqueDefinitions: ComponentDefinition[] = [];
+let primeExtensionsUniqueDefinitions: ComponentDefinition[] = [];
 
 // Url tags
 const urlHTag: string = "http://java.sun.com/jsf/html";
@@ -43,6 +45,8 @@ const urlA4jTag: string = "http://richfaces.org/a4j";
 const urlCTag: string = "http://xmlns.jcp.org/jsp/jstl/core";
 const urlCCTag: string = "http://java.sun.com/jsf/composite";
 const urlUITag: string = "http://java.sun.com/jsf/facelets";
+const urlOTag: string = "http://omnifaces.org/ui";
+const urlPETag: string = "http://primefaces.org/ui/extensions";
 let xmlns: Map<string, string>;
 
 //Name tags
@@ -54,6 +58,8 @@ const a4jTagName: string = "a4j";
 const cTagName: string = "c";
 const ccTagName: string = "cc";
 const uiTagName: string = "ui";
+const oTagName: string = "o";
+const peTagName: string = "pe";
 
 async function cache(): Promise<void> {
 	try {
@@ -125,6 +131,18 @@ function loadTag(tagType: string): void {
 			}
 			break;
 		}
+		case oTagName: {
+			if (omnifacesUniqueDefinitions.length < 1) {
+				omnifacesUniqueDefinitions = getUniqueTagDefinitions('omnifaces');
+			}
+			break;
+		}
+		case peTagName: {
+			if (primeExtensionsUniqueDefinitions.length < 1) {
+				primeExtensionsUniqueDefinitions = getUniqueTagDefinitions('primefaces-extensions');
+			}
+			break;
+		}
 	}
 }
 
@@ -193,6 +211,8 @@ const registerCompletionProvider = (
 		let tagCDoc = xmlnsTags.has(cTagName) ? xmlnsTags.get(cTagName) : "";
 		let tagCCDoc = xmlnsTags.has(ccTagName) ? xmlnsTags.get(ccTagName) : "";
 		let tagUIDoc = xmlnsTags.has(uiTagName) ? xmlnsTags.get(uiTagName) : "";
+		let tagODoc = xmlnsTags.has(oTagName) ? xmlnsTags.get(oTagName) : "";
+		let tagPEDoc = xmlnsTags.has(peTagName) ? xmlnsTags.get(peTagName) : "";
 
 		if (facelet !== "" &&
 			(facelet === tagHDoc
@@ -202,7 +222,9 @@ const registerCompletionProvider = (
 				|| facelet === tagUIDoc
 				|| facelet === tagPDoc
 				|| facelet === tagRDoc
-				|| facelet === tagA4JDoc)) {
+				|| facelet === tagA4JDoc
+				|| facelet === tagODoc
+				|| facelet === tagPEDoc)) {
 			let compUniqueDefinitions: ComponentDefinition[] = [];
 			switch (facelet) {
 				case tagPDoc: {
@@ -245,12 +267,23 @@ const registerCompletionProvider = (
 					compUniqueDefinitions = richA4JUniqueDefinitions;
 					break;
 				}
+				case tagODoc: {
+					loadTag(oTagName);
+					compUniqueDefinitions = omnifacesUniqueDefinitions;
+					break;
+				}
+				case tagPEDoc: {
+					loadTag(peTagName);
+					compUniqueDefinitions = primeExtensionsUniqueDefinitions;
+					break;
+				}
 			}
-
+			console.log(autoSearch);
 			completionItems = compUniqueDefinitions
 				.filter((definition) =>
 					autoSearch === '' || definition.component.name.startsWith(autoSearch))
 				.map((definition) => {
+					console.log(definition.component.name);
 					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
 					completionItem.documentation = definition.component.description;
 					const completionClassName = `${classPrefix}${definition.component.name}`;
@@ -285,6 +318,10 @@ const registerCompletionProvider = (
 					completionPItems = ccUniqueDefinitions.filter(definition => definition.component.name === component);
 				} else if (facelet === tagUIDoc) {
 					completionPItems = uiUniqueDefinitions.filter(definition => definition.component.name === component);
+				} else if (facelet === tagODoc) {
+					completionPItems = omnifacesUniqueDefinitions.filter(definition => definition.component.name === component);
+				} else if (facelet === tagPEDoc) {
+					completionPItems = primeExtensionsUniqueDefinitions.filter(definition => definition.component.name === component);
 				}
 
 				completionItems = completionPItems[0].component.attributes.map(definition => {
@@ -402,6 +439,12 @@ function getXmlns(document: TextDocument, position: Position): Map<string, strin
 	}
 	if (allText.includes(urlUITag)) {
 		xmlns.set(uiTagName, getTag(allText, urlUITag));
+	}
+	if (allText.includes(urlOTag)) {
+		xmlns.set(oTagName, getTag(allText, urlOTag));
+	}
+	if (allText.includes(urlPETag)) {
+		xmlns.set(peTagName, getTag(allText, urlPETag));
 	}
 	return xmlns;
 }
