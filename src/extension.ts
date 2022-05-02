@@ -23,54 +23,31 @@ const completionTriggerChars = ['"', "'", " ", "."];
 let caching = false;
 const htmlDisposables: Disposable[] = [];
 
-// Unique components by tag type
-let primeUniqueDefinitions: ComponentDefinition[] = [];
-let richUniqueDefinitions: ComponentDefinition[] = [];
-let richA4JUniqueDefinitions: ComponentDefinition[] = [];
-let hUniqueDefinitions: ComponentDefinition[] = [];
-let fUniqueDefinitions: ComponentDefinition[] = [];
-let cUniqueDefinitions: ComponentDefinition[] = [];
-let ccUniqueDefinitions: ComponentDefinition[] = [];
-let uiUniqueDefinitions: ComponentDefinition[] = [];
-let omnifacesUniqueDefinitions: ComponentDefinition[] = [];
-let primeExtensionsUniqueDefinitions: ComponentDefinition[] = [];
+interface XmlSchema {
+	prefix: string;
+	schemaUrl: string;
+	version?: () => string;
+	uniqueDefinitions: ComponentDefinition[];
+}
 
-// Url tags
-const urlHTag: string = "http://java.sun.com/jsf/html";
-const urlFTag: string = "http://java.sun.com/jsf/core";
-const urlPTag: string = "http://primefaces.org/ui";
-const urlRTag: string = "http://richfaces.org/rich";
-const urlA4jTag: string = "http://richfaces.org/a4j";
-const urlCTag: string = "http://xmlns.jcp.org/jsp/jstl/core";
-const urlCCTag: string = "http://java.sun.com/jsf/composite";
-const urlUITag: string = "http://java.sun.com/jsf/facelets";
-const urlOTag: string = "http://omnifaces.org/ui";
-const urlPETag: string = "http://primefaces.org/ui/extensions";
-let xmlns: Map<string, string>;
-
-//Name tags
-const hTagName: string = "h";
-const fTagName: string = "f";
-const pTagName: string = "p";
-const rTagName: string = "r";
-const a4jTagName: string = "a4j";
-const cTagName: string = "c";
-const ccTagName: string = "cc";
-const uiTagName: string = "ui";
-const oTagName: string = "o";
-const peTagName: string = "pe";
+const supportedXmlSchemas: XmlSchema[] = [
+	{prefix: "h", schemaUrl: "http://java.sun.com/jsf/html", uniqueDefinitions: []},
+	{prefix: "f", schemaUrl: "http://java.sun.com/jsf/core", uniqueDefinitions: []},
+	{prefix: "p", schemaUrl: "http://primefaces.org/ui", version: () => workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? '', uniqueDefinitions: []},
+	{prefix: "r", schemaUrl: "http://richfaces.org/rich", version: () => "richfaces45", uniqueDefinitions: []},
+	{prefix: "a4j", schemaUrl: "http://richfaces.org/a4j", version: () => "richfaces45-a4j", uniqueDefinitions: []},
+	{prefix: "c", schemaUrl: "http://xmlns.jcp.org/jsp/jstl/core", uniqueDefinitions: []},
+	{prefix: "cc", schemaUrl: "http://java.sun.com/jsf/composite", uniqueDefinitions: []},
+	{prefix: "ui", schemaUrl: "http://java.sun.com/jsf/facelets", uniqueDefinitions: []},
+	{prefix: "o", schemaUrl: "http://omnifaces.org/ui", version: () => "omnifaces", uniqueDefinitions: []},
+	{prefix: "pe", schemaUrl: "http://primefaces.org/ui/extensions", version: () => "primefaces-extensions", uniqueDefinitions: []}
+]
 
 async function cache(): Promise<void> {
 	try {
 		notifier.notify("eye", "Clear cache taglib...");
-		primeUniqueDefinitions = [];
-		richUniqueDefinitions = [];
-		richA4JUniqueDefinitions = [];
-		hUniqueDefinitions = [];
-		fUniqueDefinitions = [];
-		cUniqueDefinitions = [];
-		ccUniqueDefinitions = [];
-		uiUniqueDefinitions = [];
+		supportedXmlSchemas.forEach(schema => schema.uniqueDefinitions = []);
+
 		notifier.notify("zap", "Clean components cache... (click to clean cache again)");
 	} catch (err) {
 		notifier.notify("alert", "Failed to clean cache the components");
@@ -79,69 +56,10 @@ async function cache(): Promise<void> {
 }
 
 function loadTag(tagType: string): void {
-	switch (tagType) {
-		case pTagName: {
-			if (primeUniqueDefinitions.length < 1) {
-				let primeVersion: any = '';
-				primeVersion = workspace.getConfiguration().get<string>(Configuration.primeVersion);
-				primeUniqueDefinitions = getUniqueTagDefinitions(primeVersion);
-			}
-			break;
-		}
-		case cTagName: {
-			if (cUniqueDefinitions.length < 1) {
-				cUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case ccTagName: {
-			if (ccUniqueDefinitions.length < 1) {
-				ccUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case hTagName: {
-			if (hUniqueDefinitions.length < 1) {
-				hUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case fTagName: {
-			if (fUniqueDefinitions.length < 1) {
-				fUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case uiTagName: {
-			if (uiUniqueDefinitions.length < 1) {
-				uiUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case rTagName: {
-			if (richUniqueDefinitions.length < 1) {
-				richUniqueDefinitions = getUniqueTagDefinitions('richfaces45');
-			}
-			break;
-		}
-		case a4jTagName: {
-			if (richA4JUniqueDefinitions.length < 1) {
-				richA4JUniqueDefinitions = getUniqueTagDefinitions('richfaces45-a4j');
-			}
-			break;
-		}
-		case oTagName: {
-			if (omnifacesUniqueDefinitions.length < 1) {
-				omnifacesUniqueDefinitions = getUniqueTagDefinitions('omnifaces');
-			}
-			break;
-		}
-		case peTagName: {
-			if (primeExtensionsUniqueDefinitions.length < 1) {
-				primeExtensionsUniqueDefinitions = getUniqueTagDefinitions('primefaces-extensions');
-			}
-			break;
-		}
+
+	let xmlSchema = supportedXmlSchemas.find(schema => schema.prefix === tagType);
+	if (xmlSchema && xmlSchema?.uniqueDefinitions.length < 1) {
+		xmlSchema.uniqueDefinitions = getUniqueTagDefinitions(xmlSchema.version?.() ?? xmlSchema.prefix);
 	}
 }
 
@@ -198,87 +116,13 @@ const registerCompletionProvider = (
 			facelet = text.trim();
 		}
 
-		let completionItems;
-		let xmlnsTags: Map<string, string> = getXmlns(document, position);
+		let xmlnsTags: Map<string, XmlSchema> = getXmlns(document, position);
 
-		// Components
-		let tagHDoc = xmlnsTags.has(hTagName) ? xmlnsTags.get(hTagName) : "";
-		let tagFDoc = xmlnsTags.has(fTagName) ? xmlnsTags.get(fTagName) : "";
-		let tagPDoc = xmlnsTags.has(pTagName) ? xmlnsTags.get(pTagName) : "";
-		let tagRDoc = xmlnsTags.has(rTagName) ? xmlnsTags.get(rTagName) : "";
-		let tagA4JDoc = xmlnsTags.has(a4jTagName) ? xmlnsTags.get(a4jTagName) : "";
-		let tagCDoc = xmlnsTags.has(cTagName) ? xmlnsTags.get(cTagName) : "";
-		let tagCCDoc = xmlnsTags.has(ccTagName) ? xmlnsTags.get(ccTagName) : "";
-		let tagUIDoc = xmlnsTags.has(uiTagName) ? xmlnsTags.get(uiTagName) : "";
-		let tagODoc = xmlnsTags.has(oTagName) ? xmlnsTags.get(oTagName) : "";
-		let tagPEDoc = xmlnsTags.has(peTagName) ? xmlnsTags.get(peTagName) : "";
 
-		if (facelet !== "" &&
-			(facelet === tagHDoc
-				|| facelet === tagFDoc
-				|| facelet === tagCDoc
-				|| facelet === tagCCDoc
-				|| facelet === tagUIDoc
-				|| facelet === tagPDoc
-				|| facelet === tagRDoc
-				|| facelet === tagA4JDoc
-				|| facelet === tagODoc
-				|| facelet === tagPEDoc)) {
-			let compUniqueDefinitions: ComponentDefinition[] = [];
-			switch (facelet) {
-				case tagPDoc: {
-					loadTag(pTagName);
-					compUniqueDefinitions = primeUniqueDefinitions;
-					break;
-				}
-				case tagHDoc: {
-					loadTag(hTagName);
-					compUniqueDefinitions = hUniqueDefinitions;
-					break;
-				}
-				case tagFDoc: {
-					loadTag(fTagName);
-					compUniqueDefinitions = fUniqueDefinitions;
-					break;
-				}
-				case tagCDoc: {
-					loadTag(cTagName);
-					compUniqueDefinitions = cUniqueDefinitions;
-					break;
-				}
-				case tagCCDoc: {
-					loadTag(ccTagName);
-					compUniqueDefinitions = ccUniqueDefinitions;
-					break;
-				}
-				case tagUIDoc: {
-					loadTag(uiTagName);
-					compUniqueDefinitions = uiUniqueDefinitions;
-					break;
-				}
-				case tagRDoc: {
-					loadTag(rTagName);
-					compUniqueDefinitions = richUniqueDefinitions;
-					break;
-				}
-				case tagA4JDoc: {
-					loadTag(a4jTagName);
-					compUniqueDefinitions = richA4JUniqueDefinitions;
-					break;
-				}
-				case tagODoc: {
-					loadTag(oTagName);
-					compUniqueDefinitions = omnifacesUniqueDefinitions;
-					break;
-				}
-				case tagPEDoc: {
-					loadTag(peTagName);
-					compUniqueDefinitions = primeExtensionsUniqueDefinitions;
-					break;
-				}
-			}
+		if (facelet !== "" && xmlnsTags.has(facelet)) {
+			loadTag(xmlnsTags.get(facelet)?.prefix ?? '');
 			console.log(autoSearch);
-			completionItems = compUniqueDefinitions
+			return xmlnsTags.get(facelet)?.uniqueDefinitions
 				.filter((definition) =>
 					autoSearch === '' || definition.component.name.startsWith(autoSearch))
 				.map((definition) => {
@@ -289,7 +133,7 @@ const registerCompletionProvider = (
 					completionItem.filterText = completionClassName;
 					completionItem.insertText = completionClassName;
 					return completionItem;
-				});
+				}) ?? [];
 		}
 		// Attributes(Maybe)
 		else {
@@ -298,32 +142,15 @@ const registerCompletionProvider = (
 			const component = componentInfo.get("component");
 			const attibutes = componentInfo.get("attibutes");
 
-			if (facelet !== '') {
-				let completionPItems: ComponentDefinition[] = [];
+			if (facelet !== "" && xmlnsTags.has(facelet)) {
+				let completionPItems = xmlnsTags.get(facelet)?.uniqueDefinitions
+					.filter(definition => definition.component.name === component)
+					.find(() => true)
 
-				if (facelet === tagPDoc) {
-					completionPItems = primeUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagRDoc) {
-					completionPItems = richUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagA4JDoc) {
-					completionPItems = richA4JUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagHDoc) {
-					completionPItems = hUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagFDoc) {
-					completionPItems = fUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagCDoc) {
-					completionPItems = cUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagCCDoc) {
-					completionPItems = ccUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagUIDoc) {
-					completionPItems = uiUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagODoc) {
-					completionPItems = omnifacesUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagPEDoc) {
-					completionPItems = primeExtensionsUniqueDefinitions.filter(definition => definition.component.name === component);
+				if (completionPItems === undefined) {
+					return [];
 				}
-
-				completionItems = completionPItems[0].component.attributes.map(definition => {
+				let completionItems = completionPItems.component.attributes.map(definition => {
 					let text: string = '';
 					text = text + definition.description + "\n";
 					text = text + "Required: " + definition.required + "\n";
@@ -348,12 +175,12 @@ const registerCompletionProvider = (
 						}
 					}
 				}
+				return completionItems;
 			}
 			else {
 				return [];
 			}
 		}
-		return completionItems;
 	},
 }, ...completionTriggerChars);
 
@@ -408,44 +235,13 @@ function getComponentInfo(document: TextDocument, position: Position): Map<strin
 }
 
 
-function getXmlns(document: TextDocument, position: Position): Map<string, string> {
-	xmlns = new Map<string, string>();
-	let start: Position = new Position(0, 0);
-	let range: Range = new Range(start, position);
-	let allText: string = document.getText(range);
-	allText = allText.toLowerCase();
+function getXmlns(document: TextDocument, position: Position): Map<string, XmlSchema> {
+	const start: Position = new Position(0, 0);
+	const range: Range = new Range(start, position);
+	const allText: string = document.getText(range).toLowerCase();
 
-	if (allText.includes(urlPTag)) {
-		xmlns.set(pTagName, getTag(allText, urlPTag));
-	}
-	if (allText.includes(urlRTag)) {
-		xmlns.set(rTagName, getTag(allText, urlRTag));
-	}
-	if (allText.includes(urlA4jTag)) {
-		xmlns.set(a4jTagName, getTag(allText, urlA4jTag));
-	}
-	if (allText.includes(urlHTag)) {
-		xmlns.set(hTagName, getTag(allText, urlHTag));
-	}
-	if (allText.includes(urlFTag)) {
-		xmlns.set(fTagName, getTag(allText, urlFTag));
-	}
-	if (allText.includes(urlCTag)) {
-		xmlns.set(cTagName, getTag(allText, urlCTag));
-	}
-	if (allText.includes(urlCCTag)) {
-		xmlns.set(ccTagName, getTag(allText, urlCCTag));
-	}
-	if (allText.includes(urlUITag)) {
-		xmlns.set(uiTagName, getTag(allText, urlUITag));
-	}
-	if (allText.includes(urlOTag)) {
-		xmlns.set(oTagName, getTag(allText, urlOTag));
-	}
-	if (allText.includes(urlPETag)) {
-		xmlns.set(peTagName, getTag(allText, urlPETag));
-	}
-	return xmlns;
+	return new Map<string, XmlSchema>(supportedXmlSchemas.filter(xmlSchema => allText.includes(xmlSchema.schemaUrl))
+		.map(xmlSchema => [getTag(allText, xmlSchema.schemaUrl), xmlSchema]));
 }
 
 function getTag(allText: string, xmlnsTag: string): string {
