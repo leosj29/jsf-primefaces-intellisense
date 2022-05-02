@@ -2,4 +2,3 @@ node_modules
 .vscode-test-web
 dist
 out
-/nbproject/private/
