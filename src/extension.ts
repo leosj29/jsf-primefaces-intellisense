@@ -10,8 +10,7 @@ import ParseEngineGateway from "./parse-engine-gateway";
 import ComponentDefinition from './common/component-definition';
 
 enum Command {
-	cache = "jsf-primefaces-intellisense.cache",
-	helloWord = "jsf-primefaces-intellisense.helloWorld"
+	cache = "jsf-primefaces-intellisense.cache"
 }
 
 enum Configuration {

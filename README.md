@@ -1,17 +1,28 @@
 [![JSF and PrimeFaces IntelliSense](https://i.imgur.com/QkqSYdn.png "JSF and PrimeFaces IntelliSense")](https://github.com/leosj29/jsf-primefaces-intellisense)
 # IntelliSense for JSF and PrimeFaces
-A Visual Studio Code extension that provides PrimeFaces, RichFaces, Html Basic, Faces, JSTL, Composite and Facelets Templating components completion for the HTML, XHTML and JSF attribute based on the official Primefaces, RichFaces, JSTL and JSF taglib definitions.
+A Visual Studio Code extension that provides diferentes components completion in the HTML, XHTML and JSF. Based on the official Taglib definitions.
+
+# Taglib supported for
+* Primefaces 8 and 10
+* Primefaces Extensions 10.0
+* OmniFaces  3.x 
+* RichFaces 4.5
+* JSTL 1.2
+* JSF 2.2
 
 ![](https://i.imgur.com/r6DrYYu.gif)
 
 ## Features
-* Gives you autocompletion for Html Basic components taglib (<h:).
-* Gives you autocompletion for Faces Core components taglib (<f:).
-* Gives you autocompletion for Facelets Templating components taglib (<ui:).
-* Gives you autocompletion for JSTL core components taglib (<c:).
-* Gives you autocompletion for Composite components taglib (<cc:).
-* Gives you autocompletion for PrimeFaces components taglib (<p:).
-* Gives you autocompletion for RichFaces components taglib (<r:) and (<a4j:).
+* Gives you autocompletion for Html Basic components (<h:).
+* Gives you autocompletion for Faces Core components (<f:).
+* Gives you autocompletion for Facelets Templating components (<ui:).
+* Gives you autocompletion for JSTL core components (<c:).
+* Gives you autocompletion for Composite components (<cc:).
+* Gives you autocompletion for PrimeFaces components (<p:).
+* Gives you autocompletion for PrimeFaces Extensions (<pe:).
+* Gives you autocompletion for OmniFaces (<o:).
+* Gives you autocompletion for RichFaces components (<r:) and (<a4j:).
+
 * Automatic detection of xmlns (You must include the namespace mandatory).   
     * Html Basic -> "http://java.sun.com/jsf/html"
     * Faces Core -> "http://java.sun.com/jsf/core"    
@@ -19,6 +30,8 @@ A Visual Studio Code extension that provides PrimeFaces, RichFaces, Html Basic, 
     * Composite Components -> "http://java.sun.com/jsf/composite"
     * Facelets Templating -> "http://java.sun.com/jsf/facelets"
     * PrimeFaces -> "http://primefaces.org/ui"
+    * PrimeFaces Extensions -> "hhttp://primefaces.org/ui/extensions"
+    * OmniFaces -> "http://omnifaces.org/ui"
     * RichFaces -> "http://richfaces.org/rich"
     * RichFaces A4J -> "http://richfaces.org/a4j"
 
@@ -46,7 +59,6 @@ A Visual Studio Code extension that provides PrimeFaces, RichFaces, Html Basic, 
 ## Supported Language Modes
 * HTML.
 * XHTML.
-* JSP.
 * JSF.
 * XML.
 
@@ -59,7 +71,7 @@ It's possible to specify which language modes will have autocompletion. There ar
 ## Contributions
 You can request new features and contribute to the extension development on its [repository on GitHub](https://github.com/leosj29/jsf-primefaces-intellisense/issues). Look for an issue you're interested in working on, comment on it to let me know you're working on it and submit your pull request! :D
 
-## What's new in version 1.2.0 (Apr 30, 2022)
+## What's new in version 1.3.0 (May 01, 2022)
 
 Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense/blob/master/CHANGELOG.md) for the current and previous updates.
 

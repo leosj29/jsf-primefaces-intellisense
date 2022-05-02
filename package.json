@@ -2,7 +2,7 @@
 	"name": "jsf-primefaces-intellisense",
 	"displayName": "JSF Primefaces Intellisense",
 	"description": "JSF and Primefaces IntelliSense",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"publisher": "leosj29",
 	"license": "MIT",
 	"engines": {
@@ -14,7 +14,9 @@
 		"html",
 		"intellisense",	
 		"jsf",
+		"omnifaces",
 		"primefaces",
+		"extensions",
 		"rich",		
 		"richfaces",
 		"xhtml"
@@ -29,10 +31,6 @@
 	],
 	"contributes": {
 		"commands": [
-			{
-				"command": "jsf-primefaces-intellisense.helloWorld",
-				"title": "Hello World"
-			},
 			{
 				"command": "jsf-primefaces-intellisense.cache",
 				"title": "JSF and PrimeFaces Cache"
