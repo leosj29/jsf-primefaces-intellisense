@@ -1,3 +1,8 @@
+### 1.4.0(May 03, 2022)
+* Code cleanup and refactor to simplify adding new xmlns.
+* Source code documentation.
+* Special thank section is added in the readme file.
+
 ### 1.3.0(May 01, 2022)
 * Add support for OmniFaces 3.x Tag Library
     *  o tags ([OmniFaces](http://omnifaces.org/ui))
