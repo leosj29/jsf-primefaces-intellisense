@@ -8,6 +8,7 @@ import * as VError from "verror";
 import Notifier from "./notifier";
 import ParseEngineGateway from "./parse-engine-gateway";
 import ComponentDefinition from './common/component-definition';
+import XmlNamespace from './common/xml-namespace';
 
 enum Command {
 	cache = "jsf-primefaces-intellisense.cache"
@@ -23,54 +24,28 @@ const completionTriggerChars = ['"', "'", " ", "."];
 let caching = false;
 const htmlDisposables: Disposable[] = [];
 
-// Unique components by tag type
-let primeUniqueDefinitions: ComponentDefinition[] = [];
-let richUniqueDefinitions: ComponentDefinition[] = [];
-let richA4JUniqueDefinitions: ComponentDefinition[] = [];
-let hUniqueDefinitions: ComponentDefinition[] = [];
-let fUniqueDefinitions: ComponentDefinition[] = [];
-let cUniqueDefinitions: ComponentDefinition[] = [];
-let ccUniqueDefinitions: ComponentDefinition[] = [];
-let uiUniqueDefinitions: ComponentDefinition[] = [];
-let omnifacesUniqueDefinitions: ComponentDefinition[] = [];
-let primeExtensionsUniqueDefinitions: ComponentDefinition[] = [];
+// Variable with the information of the supported xmlns
+const supportedXmlNamespaces: XmlNamespace[] = [
+	{ id: "a4j", url: "http://richfaces.org/a4j", dataFilename: "richfaces45-a4j", uniqueDefinitions: [] },
+	{ id: "c", url: "http://xmlns.jcp.org/jsp/jstl/core", dataFilename: "c", uniqueDefinitions: [] },
+	{ id: "cc", url: "http://java.sun.com/jsf/composite", dataFilename: "cc", uniqueDefinitions: [] },
+	{ id: "f", url: "http://java.sun.com/jsf/core", dataFilename: "f", uniqueDefinitions: [] },
+	{ id: "h", url: "http://java.sun.com/jsf/html", dataFilename: "h", uniqueDefinitions: [] },
+	{ id: "o", url: "http://omnifaces.org/ui", dataFilename: "omnifaces", uniqueDefinitions: [] },
+	{ id: "p", url: "http://primefaces.org/ui", dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? '', uniqueDefinitions: [] },
+	{ id: "pe", url: "http://primefaces.org/ui/extensions", dataFilename: "primefaces-extensions", uniqueDefinitions: [] },
+	{ id: "r", url: "http://richfaces.org/rich", dataFilename: "richfaces45", uniqueDefinitions: [] },
+	{ id: "ui", url: "http://java.sun.com/jsf/facelets", dataFilename: "ui", uniqueDefinitions: [] }
+];
 
-// Url tags
-const urlHTag: string = "http://java.sun.com/jsf/html";
-const urlFTag: string = "http://java.sun.com/jsf/core";
-const urlPTag: string = "http://primefaces.org/ui";
-const urlRTag: string = "http://richfaces.org/rich";
-const urlA4jTag: string = "http://richfaces.org/a4j";
-const urlCTag: string = "http://xmlns.jcp.org/jsp/jstl/core";
-const urlCCTag: string = "http://java.sun.com/jsf/composite";
-const urlUITag: string = "http://java.sun.com/jsf/facelets";
-const urlOTag: string = "http://omnifaces.org/ui";
-const urlPETag: string = "http://primefaces.org/ui/extensions";
-let xmlns: Map<string, string>;
-
-//Name tags
-const hTagName: string = "h";
-const fTagName: string = "f";
-const pTagName: string = "p";
-const rTagName: string = "r";
-const a4jTagName: string = "a4j";
-const cTagName: string = "c";
-const ccTagName: string = "cc";
-const uiTagName: string = "ui";
-const oTagName: string = "o";
-const peTagName: string = "pe";
-
+/**
+ * Method for clearing cache
+ * 
+ */
 async function cache(): Promise<void> {
 	try {
 		notifier.notify("eye", "Clear cache taglib...");
-		primeUniqueDefinitions = [];
-		richUniqueDefinitions = [];
-		richA4JUniqueDefinitions = [];
-		hUniqueDefinitions = [];
-		fUniqueDefinitions = [];
-		cUniqueDefinitions = [];
-		ccUniqueDefinitions = [];
-		uiUniqueDefinitions = [];
+		supportedXmlNamespaces.forEach(xmlns => xmlns.uniqueDefinitions = []);
 		notifier.notify("zap", "Clean components cache... (click to clean cache again)");
 	} catch (err) {
 		notifier.notify("alert", "Failed to clean cache the components");
@@ -78,104 +53,13 @@ async function cache(): Promise<void> {
 	}
 }
 
-function loadTag(tagType: string): void {
-	switch (tagType) {
-		case pTagName: {
-			if (primeUniqueDefinitions.length < 1) {
-				let primeVersion: any = '';
-				primeVersion = workspace.getConfiguration().get<string>(Configuration.primeVersion);
-				primeUniqueDefinitions = getUniqueTagDefinitions(primeVersion);
-			}
-			break;
-		}
-		case cTagName: {
-			if (cUniqueDefinitions.length < 1) {
-				cUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case ccTagName: {
-			if (ccUniqueDefinitions.length < 1) {
-				ccUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case hTagName: {
-			if (hUniqueDefinitions.length < 1) {
-				hUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case fTagName: {
-			if (fUniqueDefinitions.length < 1) {
-				fUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case uiTagName: {
-			if (uiUniqueDefinitions.length < 1) {
-				uiUniqueDefinitions = getUniqueTagDefinitions(tagType);
-			}
-			break;
-		}
-		case rTagName: {
-			if (richUniqueDefinitions.length < 1) {
-				richUniqueDefinitions = getUniqueTagDefinitions('richfaces45');
-			}
-			break;
-		}
-		case a4jTagName: {
-			if (richA4JUniqueDefinitions.length < 1) {
-				richA4JUniqueDefinitions = getUniqueTagDefinitions('richfaces45-a4j');
-			}
-			break;
-		}
-		case oTagName: {
-			if (omnifacesUniqueDefinitions.length < 1) {
-				omnifacesUniqueDefinitions = getUniqueTagDefinitions('omnifaces');
-			}
-			break;
-		}
-		case peTagName: {
-			if (primeExtensionsUniqueDefinitions.length < 1) {
-				primeExtensionsUniqueDefinitions = getUniqueTagDefinitions('primefaces-extensions');
-			}
-			break;
-		}
-	}
-}
-
-
-function getUniqueTagDefinitions(tagType: string): ComponentDefinition[] {
-	try {
-		let uniqueComponentDefinition: ComponentDefinition[] = [];
-		notifier.notify("eye", "Looking taglib in the workspace...");
-		console.log("Looking for parseable documents...");
-		console.log("Found all parseable documents.");
-		const componentDefinitions: ComponentDefinition[] = [];
-		let failedLogs = "";
-		let failedLogsCount = 0;
-		console.log("Parsing documents and looking components definitions...");
-		try {
-			Array.prototype.push.apply(componentDefinitions, ParseEngineGateway.callParser(tagType));
-		} catch (err) {
-			notifier.notify("alert", "Failed to cache the components in the workspace (click for another attempt)");
-			throw new VError('err', "Failed to parse the documents");
-		}
-		uniqueComponentDefinition = _.uniqBy(componentDefinitions, (def) => def.component.name);
-		console.log("Summary:");
-		console.log(componentDefinitions.length, "Ccomponent definitions found");
-		console.log(uniqueComponentDefinition.length, "Unique component definitions found");
-		console.log(failedLogsCount, "failed attempts to parse. List of the documents:");
-		console.log(failedLogs);
-		notifier.notify("zap", "Components cached (click to cache again)");
-		return uniqueComponentDefinition;
-	} catch (err) {
-		notifier.notify("alert", "Failed to cache the components in the workspace (click for another attempt)");
-		throw new VError('err', "Failed to cache the component definitions during the iterations over the documents that were found");
-	}
-}
-
+/**
+ * Main method
+ * 
+ * @param languageSelector 
+ * @param classPrefix 
+ * @returns 
+ */
 const registerCompletionProvider = (
 	languageSelector: string,
 	classPrefix = ""
@@ -185,104 +69,28 @@ const registerCompletionProvider = (
 		const range: Range = new Range(start, position);
 		const text: string = document.getText(range);
 		let autoSearch: string = '';
-		let facelet: string = text.trimStart();
+		let xmlnsPrefix: string = text.trimStart();
 
-		if (!facelet.includes(' ')) {
-			let ind = facelet.indexOf(':');
-			if (ind > -1 && ind + 1 < facelet.length) {
-				autoSearch = facelet.substring(ind + 1);
-				facelet = facelet.substring(0, ind + 1);
+		if (!xmlnsPrefix.includes(' ')) {
+			let ind = xmlnsPrefix.indexOf(':');
+			if (ind > -1 && ind + 1 < xmlnsPrefix.length) {
+				autoSearch = xmlnsPrefix.substring(ind + 1);
+				xmlnsPrefix = xmlnsPrefix.substring(0, ind + 1);
 			}
 		}
 		else {
-			facelet = text.trim();
+			xmlnsPrefix = text.trim();
 		}
+		aliasFromDocument(document, position);
+		let xmlns = supportedXmlNamespaces.find(xmlns => xmlns.aliasInDoc === xmlnsPrefix);
 
-		let completionItems;
-		let xmlnsTags: Map<string, string> = getXmlns(document, position);
-
-		// Components
-		let tagHDoc = xmlnsTags.has(hTagName) ? xmlnsTags.get(hTagName) : "";
-		let tagFDoc = xmlnsTags.has(fTagName) ? xmlnsTags.get(fTagName) : "";
-		let tagPDoc = xmlnsTags.has(pTagName) ? xmlnsTags.get(pTagName) : "";
-		let tagRDoc = xmlnsTags.has(rTagName) ? xmlnsTags.get(rTagName) : "";
-		let tagA4JDoc = xmlnsTags.has(a4jTagName) ? xmlnsTags.get(a4jTagName) : "";
-		let tagCDoc = xmlnsTags.has(cTagName) ? xmlnsTags.get(cTagName) : "";
-		let tagCCDoc = xmlnsTags.has(ccTagName) ? xmlnsTags.get(ccTagName) : "";
-		let tagUIDoc = xmlnsTags.has(uiTagName) ? xmlnsTags.get(uiTagName) : "";
-		let tagODoc = xmlnsTags.has(oTagName) ? xmlnsTags.get(oTagName) : "";
-		let tagPEDoc = xmlnsTags.has(peTagName) ? xmlnsTags.get(peTagName) : "";
-
-		if (facelet !== "" &&
-			(facelet === tagHDoc
-				|| facelet === tagFDoc
-				|| facelet === tagCDoc
-				|| facelet === tagCCDoc
-				|| facelet === tagUIDoc
-				|| facelet === tagPDoc
-				|| facelet === tagRDoc
-				|| facelet === tagA4JDoc
-				|| facelet === tagODoc
-				|| facelet === tagPEDoc)) {
-			let compUniqueDefinitions: ComponentDefinition[] = [];
-			switch (facelet) {
-				case tagPDoc: {
-					loadTag(pTagName);
-					compUniqueDefinitions = primeUniqueDefinitions;
-					break;
-				}
-				case tagHDoc: {
-					loadTag(hTagName);
-					compUniqueDefinitions = hUniqueDefinitions;
-					break;
-				}
-				case tagFDoc: {
-					loadTag(fTagName);
-					compUniqueDefinitions = fUniqueDefinitions;
-					break;
-				}
-				case tagCDoc: {
-					loadTag(cTagName);
-					compUniqueDefinitions = cUniqueDefinitions;
-					break;
-				}
-				case tagCCDoc: {
-					loadTag(ccTagName);
-					compUniqueDefinitions = ccUniqueDefinitions;
-					break;
-				}
-				case tagUIDoc: {
-					loadTag(uiTagName);
-					compUniqueDefinitions = uiUniqueDefinitions;
-					break;
-				}
-				case tagRDoc: {
-					loadTag(rTagName);
-					compUniqueDefinitions = richUniqueDefinitions;
-					break;
-				}
-				case tagA4JDoc: {
-					loadTag(a4jTagName);
-					compUniqueDefinitions = richA4JUniqueDefinitions;
-					break;
-				}
-				case tagODoc: {
-					loadTag(oTagName);
-					compUniqueDefinitions = omnifacesUniqueDefinitions;
-					break;
-				}
-				case tagPEDoc: {
-					loadTag(peTagName);
-					compUniqueDefinitions = primeExtensionsUniqueDefinitions;
-					break;
-				}
-			}
-			console.log(autoSearch);
-			completionItems = compUniqueDefinitions
+		// Find the components
+		if (xmlnsPrefix !== "" && xmlns) {
+			loadAllXmlnsContent(xmlns);
+			return xmlns.uniqueDefinitions
 				.filter((definition) =>
 					autoSearch === '' || definition.component.name.startsWith(autoSearch))
 				.map((definition) => {
-					console.log(definition.component.name);
 					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
 					completionItem.documentation = definition.component.description;
 					const completionClassName = `${classPrefix}${definition.component.name}`;
@@ -291,73 +99,137 @@ const registerCompletionProvider = (
 					return completionItem;
 				});
 		}
-		// Attributes(Maybe)
+		// Find component attributes
 		else {
-			const componentInfo: Map<string, string> = getComponentInfo(document, position);
-			const facelet = "<" + componentInfo.get("facelet") + ":";
-			const component = componentInfo.get("component");
+			const componentInfo: Map<string, string> = getComponentInfomation(document, position);
+			const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ? "<" + componentInfo.get("xmlnsPrefix") + ":" : "";
+			const componentName = componentInfo.get("componentName");
 			const attibutes = componentInfo.get("attibutes");
 
-			if (facelet !== '') {
-				let completionPItems: ComponentDefinition[] = [];
+			if (xmlnsPrefix !== "") {
+				aliasFromDocument(document, position);
+				let xmlns = supportedXmlNamespaces.find(xmlns => xmlns.aliasInDoc === xmlnsPrefix);
+				if (xmlnsPrefix !== "" && xmlns) {
 
-				if (facelet === tagPDoc) {
-					completionPItems = primeUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagRDoc) {
-					completionPItems = richUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagA4JDoc) {
-					completionPItems = richA4JUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagHDoc) {
-					completionPItems = hUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagFDoc) {
-					completionPItems = fUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagCDoc) {
-					completionPItems = cUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagCCDoc) {
-					completionPItems = ccUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagUIDoc) {
-					completionPItems = uiUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagODoc) {
-					completionPItems = omnifacesUniqueDefinitions.filter(definition => definition.component.name === component);
-				} else if (facelet === tagPEDoc) {
-					completionPItems = primeExtensionsUniqueDefinitions.filter(definition => definition.component.name === component);
-				}
+					let componentItem = xmlns.uniqueDefinitions
+						.filter(definition => definition.component.name === componentName)
+						.find(() => true);
 
-				completionItems = completionPItems[0].component.attributes.map(definition => {
-					let text: string = '';
-					text = text + definition.description + "\n";
-					text = text + "Required: " + definition.required + "\n";
-					text = text + "Type: " + definition.type + "\n";
+					if (componentItem === undefined) {
+						return [];
+					}
 
-					const completionItem = new CompletionItem(definition.name, CompletionItemKind.Property);
-					completionItem.documentation = text;
-					const completionClassName = `${classPrefix}${definition.name}`;
-					completionItem.filterText = completionClassName;
-					completionItem.insertText = completionClassName + "=\"\"";
-					return completionItem;
-				});
+					let completionItems = componentItem.component.attributes.map(definition => {
+						let text: string = '';
+						text = text + definition.description + "\n";
+						text = text + "Required: " + definition.required + "\n";
+						text = text + "Type: " + definition.type + "\n";
+						const completionItem = new CompletionItem(definition.name, CompletionItemKind.Property);
+						completionItem.documentation = text;
+						const completionClassName = `${classPrefix}${definition.name}`;
+						completionItem.filterText = completionClassName;
+						completionItem.insertText = completionClassName + "=\"\"";
+						return completionItem;
+					});
 
-				if (attibutes && attibutes.length > 0) {
-					const attributesOnComponent = attibutes.split('|');
-					// Removes from the collection the attributes already specified on the component
-					for (const attributeOnComponent of attributesOnComponent) {
-						for (let j = 0; j < completionItems.length; j++) {
-							if (completionItems[j].insertText === attributeOnComponent + "=\"\"") {
-								completionItems.splice(j, 1);
+					if (attibutes && attibutes.length > 0) {
+						const attributesOnComponent = attibutes.split('|');
+						// Removes from the collection the attributes already specified on the component
+						for (const attributeOnComponent of attributesOnComponent) {
+							for (let j = 0; j < completionItems.length; j++) {
+								if (completionItems[j].insertText === attributeOnComponent + "=\"\"") {
+									completionItems.splice(j, 1);
+								}
 							}
 						}
 					}
+					return completionItems;
 				}
 			}
-			else {
-				return [];
-			}
 		}
-		return completionItems;
+		return [];
 	},
 }, ...completionTriggerChars);
 
-function getComponentInfo(document: TextDocument, position: Position): Map<string, string> {
+/**
+ * Get all the xmlns prefixes used in the document 
+ * and register them in each of the supportedXmlNamespaces.
+ * 
+ * @param document 
+ * @param position 
+ */
+function aliasFromDocument(document: TextDocument, position: Position): void {
+	let start: Position = new Position(0, 0);
+	let range: Range = new Range(start, position);
+	let allText: string = document.getText(range);
+	allText = allText.toLowerCase();
+	supportedXmlNamespaces.forEach(xmlns => {
+		if (allText.includes("\"" + xmlns.url + "\"")) {
+			xmlns.aliasInDoc = getXmlnsAlias(allText, xmlns.url);
+		}
+		else {
+			xmlns.aliasInDoc = "";
+		}
+	});
+}
+
+/**
+ * Get the prefix used in the xmlns.
+ * 
+ * @param allText 
+ * @param xmlnsTag 
+ * @returns 
+ */
+function getXmlnsAlias(allText: string, xmlnsTag: string): string {
+	let tag: string = '';
+	let index: number = allText.indexOf(xmlnsTag);
+	tag = allText.substring(0, index);
+	let indexXMLNS: number = tag.lastIndexOf('xmlns:');
+	tag = tag.substring(indexXMLNS + 6, tag.length - 2);
+	return "<" + tag + ":";
+}
+
+/**
+ * Load all taglib content from xmlns (components and attributes).
+ * Loading is only done if the elements have not been loaded previously.
+ * 
+ * @param xmlns
+ */
+function loadAllXmlnsContent(xmlns: XmlNamespace): void {
+	if (xmlns && xmlns?.uniqueDefinitions.length < 1) {
+		try {
+			let uniqueComponentDefinition: ComponentDefinition[] = [];
+			const componentDefinitions: ComponentDefinition[] = [];
+			let failedLogs = "";
+			let failedLogsCount = 0;
+			try {
+				Array.prototype.push.apply(componentDefinitions, ParseEngineGateway.callParser(xmlns.dataFilename));
+			} catch (err) {
+				notifier.notify("alert", "Failed to cache the components in the workspace (click for another attempt)");
+				throw new VError('err', "Failed to parse the documents");
+			}
+			uniqueComponentDefinition = _.uniqBy(componentDefinitions, (def) => def.component.name);
+			if (failedLogsCount > 0) {
+				console.log(failedLogsCount, "failed attempts to parse. List of the documents:");
+				console.log(failedLogs);
+			}
+			xmlns.uniqueDefinitions = uniqueComponentDefinition;
+		} catch (err) {
+			notifier.notify("alert", "Failed to cache the components in the workspace (click for another attempt)");
+			throw new VError('err', "Failed to cache the component definitions during the iterations over the documents that were found");
+		}
+	}
+}
+
+/**
+ * Gets the name of the component, the attribute and 
+ * possible attributes already used in it.
+ * 
+ * @param document 
+ * @param position 
+ * @returns 
+ */
+function getComponentInfomation(document: TextDocument, position: Position): Map<string, string> {
 	let componentInfo = new Map<string, string>();
 	let text: string = '';
 	let start: Position = new Position(0, 0);
@@ -379,8 +251,8 @@ function getComponentInfo(document: TextDocument, position: Position): Map<strin
 	text = text.replace("<", "");
 	if (text.includes(":")) {
 		let div = text.split(':');
-		componentInfo.set("facelet", div[0]);
-		componentInfo.set("component", div[1]);
+		componentInfo.set("xmlnsPrefix", div[0]);
+		componentInfo.set("componentName", div[1]);
 
 		let attibutes: string = '';
 		lastC = allText.lastIndexOf('<' + div[0] + ':' + div[1]);
@@ -407,56 +279,12 @@ function getComponentInfo(document: TextDocument, position: Position): Map<strin
 	return componentInfo;
 }
 
-
-function getXmlns(document: TextDocument, position: Position): Map<string, string> {
-	xmlns = new Map<string, string>();
-	let start: Position = new Position(0, 0);
-	let range: Range = new Range(start, position);
-	let allText: string = document.getText(range);
-	allText = allText.toLowerCase();
-
-	if (allText.includes(urlPTag)) {
-		xmlns.set(pTagName, getTag(allText, urlPTag));
-	}
-	if (allText.includes(urlRTag)) {
-		xmlns.set(rTagName, getTag(allText, urlRTag));
-	}
-	if (allText.includes(urlA4jTag)) {
-		xmlns.set(a4jTagName, getTag(allText, urlA4jTag));
-	}
-	if (allText.includes(urlHTag)) {
-		xmlns.set(hTagName, getTag(allText, urlHTag));
-	}
-	if (allText.includes(urlFTag)) {
-		xmlns.set(fTagName, getTag(allText, urlFTag));
-	}
-	if (allText.includes(urlCTag)) {
-		xmlns.set(cTagName, getTag(allText, urlCTag));
-	}
-	if (allText.includes(urlCCTag)) {
-		xmlns.set(ccTagName, getTag(allText, urlCCTag));
-	}
-	if (allText.includes(urlUITag)) {
-		xmlns.set(uiTagName, getTag(allText, urlUITag));
-	}
-	if (allText.includes(urlOTag)) {
-		xmlns.set(oTagName, getTag(allText, urlOTag));
-	}
-	if (allText.includes(urlPETag)) {
-		xmlns.set(peTagName, getTag(allText, urlPETag));
-	}
-	return xmlns;
-}
-
-function getTag(allText: string, xmlnsTag: string): string {
-	let tag: string = '';
-	let index: number = allText.indexOf(xmlnsTag);
-	tag = allText.substring(0, index);
-	let indexXMLNS: number = tag.lastIndexOf('xmlns:');
-	tag = tag.substring(indexXMLNS + 6, tag.length - 2);
-	return "<" + tag + ":";
-}
-
+/**
+ * Determines if I am positioned on an attribute.
+ * 
+ * @param text 
+ * @returns 
+ */
 function inAttribute(text: string): boolean {
 	let character: string = '';
 	let index: number = text.lastIndexOf('\"');
