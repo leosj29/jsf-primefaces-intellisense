@@ -8,7 +8,7 @@ A Visual Studio Code extension that provides diferentes components completion in
 * OmniFaces  3.x 
 * RichFaces 4.5
 * JSTL 1.2
-* JSF 2.2
+* JSF 2.1 and 2.2
 
 ![](https://i.imgur.com/r6DrYYu.gif)
 
@@ -24,11 +24,11 @@ A Visual Studio Code extension that provides diferentes components completion in
 * Gives you autocompletion for RichFaces components (<r:) and (<a4j:).
 
 * Automatic detection of xmlns (You must include the namespace mandatory).   
-    * Html Basic -> "http://java.sun.com/jsf/html"
-    * Faces Core -> "http://java.sun.com/jsf/core"    
+    * Html Basic -> "http://java.sun.com/jsf/html" or "http://xmlns.jcp.org/jsf/html"
+    * Faces Core -> "http://java.sun.com/jsf/core" or "http://xmlns.jcp.org/jsf/core"
     * JSTL Core -> ="http://xmlns.jcp.org/jsp/jstl/core"
-    * Composite Components -> "http://java.sun.com/jsf/composite"
-    * Facelets Templating -> "http://java.sun.com/jsf/facelets"
+    * Composite Components -> "http://java.sun.com/jsf/composite" or "http://xmlns.jcp.org/jsf/composite"
+    * Facelets Templating -> "http://java.sun.com/jsf/facelets" or "http://xmlns.jcp.org/jsf/facelets"
     * PrimeFaces -> "http://primefaces.org/ui"
     * PrimeFaces Extensions -> "hhttp://primefaces.org/ui/extensions"
     * OmniFaces -> "http://omnifaces.org/ui"
@@ -71,7 +71,7 @@ It's possible to specify which language modes will have autocompletion. There ar
 ## Contributions
 You can request new features and contribute to the extension development on its [repository on GitHub](https://github.com/leosj29/jsf-primefaces-intellisense/issues). Look for an issue you're interested in working on, comment on it to let me know you're working on it and submit your pull request! :D
 
-## What's new in version 1.4.0 (May 03, 2022)
+## What's new in version 1.5.0 (Jun 04, 2022)
 
 Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense/blob/master/CHANGELOG.md) for the current and previous updates.
 

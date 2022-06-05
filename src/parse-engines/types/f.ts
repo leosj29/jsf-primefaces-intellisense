@@ -1,12 +1,12 @@
 import IParseEngine from "../common/parse-engine";
 import ComponentExtractor from "../common/component-extractor";
 import ComponentDefinition from "../../common/component-definition";
-import * as data from '../data/c.json';
+import * as data from '../data/f.json';
 
-class CFaceletsParseEngine implements IParseEngine {
-    public taglibId = "c";
-    public parse(version: string): ComponentDefinition[]{
+class F implements IParseEngine {
+    public taglibId = "f";
+    public parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }
-export default CFaceletsParseEngine;
+export default F;

@@ -26,16 +26,16 @@ const htmlDisposables: Disposable[] = [];
 
 // Variable with the information of the supported xmlns
 const supportedXmlNamespaces: XmlNamespace[] = [
-	{ id: "a4j", url: "http://richfaces.org/a4j", dataFilename: "richfaces45-a4j", uniqueDefinitions: [] },
-	{ id: "c", url: "http://xmlns.jcp.org/jsp/jstl/core", dataFilename: "c", uniqueDefinitions: [] },
-	{ id: "cc", url: "http://java.sun.com/jsf/composite", dataFilename: "cc", uniqueDefinitions: [] },
-	{ id: "f", url: "http://java.sun.com/jsf/core", dataFilename: "f", uniqueDefinitions: [] },
-	{ id: "h", url: "http://java.sun.com/jsf/html", dataFilename: "h", uniqueDefinitions: [] },
-	{ id: "o", url: "http://omnifaces.org/ui", dataFilename: "omnifaces", uniqueDefinitions: [] },
-	{ id: "p", url: "http://primefaces.org/ui", dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? '', uniqueDefinitions: [] },
-	{ id: "pe", url: "http://primefaces.org/ui/extensions", dataFilename: "primefaces-extensions", uniqueDefinitions: [] },
-	{ id: "r", url: "http://richfaces.org/rich", dataFilename: "richfaces45", uniqueDefinitions: [] },
-	{ id: "ui", url: "http://java.sun.com/jsf/facelets", dataFilename: "ui", uniqueDefinitions: [] }
+	{ id: "a4j", urls: ["http://richfaces.org/a4j"], dataFilename: "richfaces45-a4j", uniqueDefinitions: [] },
+	{ id: "c", urls: ["http://xmlns.jcp.org/jsp/jstl/core"], dataFilename: "c", uniqueDefinitions: [] },
+	{ id: "cc", urls: ["http://java.sun.com/jsf/composite", "http://xmlns.jcp.org/jsf/composite"], dataFilename: "cc", uniqueDefinitions: [] },
+	{ id: "f", urls: ["http://java.sun.com/jsf/core", "http://xmlns.jcp.org/jsf/core"], dataFilename: "f", uniqueDefinitions: [] },
+	{ id: "h", urls: ["http://java.sun.com/jsf/html", "http://xmlns.jcp.org/jsf/html"], dataFilename: "h", uniqueDefinitions: [] },
+	{ id: "o", urls: ["http://omnifaces.org/ui"], dataFilename: "omnifaces", uniqueDefinitions: [] },
+	{ id: "p", urls: ["http://primefaces.org/ui"], dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? "", uniqueDefinitions: [] },
+	{ id: "pe", urls: ["http://primefaces.org/ui/extensions"], dataFilename: "primefaces-extensions", uniqueDefinitions: [] },
+	{ id: "r", urls: ["http://richfaces.org/rich"], dataFilename: "richfaces45", uniqueDefinitions: [] },
+	{ id: "ui", urls: ["http://java.sun.com/jsf/facelets", "http://xmlns.jcp.org/jsf/facelets"], dataFilename: "ui", uniqueDefinitions: [] }
 ];
 
 /**
@@ -164,12 +164,12 @@ function aliasFromDocument(document: TextDocument, position: Position): void {
 	let allText: string = document.getText(range);
 	allText = allText.toLowerCase();
 	supportedXmlNamespaces.forEach(xmlns => {
-		if (allText.includes("\"" + xmlns.url + "\"")) {
-			xmlns.aliasInDoc = getXmlnsAlias(allText, xmlns.url);
-		}
-		else {
-			xmlns.aliasInDoc = "";
-		}
+		xmlns.aliasInDoc = "";
+		xmlns.urls.forEach(url => {
+			if (allText.includes("\"" + url + "\"")) {
+				xmlns.aliasInDoc = getXmlnsAlias(allText, url);
+			}
+		});
 	});
 }
 

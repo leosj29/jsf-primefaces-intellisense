@@ -1,10 +1,18 @@
+### 1.5.0(Jun 06, 2022)
+* Add support for Primefaces 11 Tag Library.
+* Add new XML namespace domain for JSF 2.2.
+    * Html Basic -> "http://xmlns.jcp.org/jsf/html"
+    * Faces Core -> "http://xmlns.jcp.org/jsf/core"
+    * Composite Components -> "http://xmlns.jcp.org/jsf/composite"
+    * Facelets Templating -> "http://xmlns.jcp.org/jsf/facelets"
+    
 ### 1.4.0(May 03, 2022)
 * Code cleanup and refactor to simplify adding new xmlns.
 * Source code documentation.
 * Special thank section is added in the readme file.
 
 ### 1.3.0(May 01, 2022)
-* Add support for OmniFaces 3.x Tag Library
+* Add support for OmniFaces 3.x Tag Library.
     *  o tags ([OmniFaces](http://omnifaces.org/ui))
 * Add support for PrimeFaces Extensions 10.0 Tag Library
     *  pe tags ([PrimeFaces Extensions](http://primefaces.org/ui/extensions))    
@@ -17,7 +25,7 @@
     *  a4j tags ([Richfaces](https://richfaces.jboss.org/docs))
 
 ### 1.0.1(Apr 25, 2022)
-* Add support for all JavaServer Faces 2.2 Facelets Tag Library
+* Add support for all JavaServer Faces 2.1 Facelets Tag Library
     *  h tags ([Html Basic](https://docs.oracle.com/javaee/7/javaserver-faces-2-2/vdldocs-facelets/h/tld-frame.html))
     *  f tags ([Faces Core](https://docs.oracle.com/javaee/7/javaserver-faces-2-2/vdldocs-facelets/f/tld-frame.html))
     *  c tags ([JSTL core](https://docs.oracle.com/javaee/7/javaserver-faces-2-2/vdldocs-facelets/c/tld-frame.html))

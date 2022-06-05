@@ -3,7 +3,7 @@ import ComponentDefinition from "./component-definition";
 class XmlNamespace {
     id: string = "";
     aliasInDoc?: string = "";
-    url: string = "";
+    urls: string[] = [];
     dataFilename: string = "";
     uniqueDefinitions: ComponentDefinition[] = [];
 }

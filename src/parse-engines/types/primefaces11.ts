@@ -1,12 +1,12 @@
 import IParseEngine from "../common/parse-engine";
 import ComponentExtractor from "../common/component-extractor";
 import ComponentDefinition from "../../common/component-definition";
-import * as data from '../data/primefaces10.json';
+import * as data from '../data/primefaces11.json';
 
-class PrimefacesParseEngine implements IParseEngine {
-    public taglibId = "primefaces10";
+class Primefaces11 implements IParseEngine {
+    public taglibId = "primefaces11";
     public parse(version: string): ComponentDefinition[] {
         return ComponentExtractor.extract(JSON.stringify(data.components.component));
     }
 }
-export default PrimefacesParseEngine;
+export default Primefaces11;
