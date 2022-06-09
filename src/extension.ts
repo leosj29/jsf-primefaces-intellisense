@@ -86,7 +86,6 @@ const registerCompletionProvider = (
 
 		// Find the components
 		if (xmlnsPrefix !== "" && xmlns) {
-			loadAllXmlnsContent(xmlns);
 			return xmlns.uniqueDefinitions
 				.filter((definition) =>
 					autoSearch === '' || definition.component.name.startsWith(autoSearch))
@@ -96,6 +95,7 @@ const registerCompletionProvider = (
 					const completionClassName = `${classPrefix}${definition.component.name}`;
 					completionItem.filterText = completionClassName;
 					completionItem.insertText = completionClassName;
+					completionItem.detail = "XMLNS: " + xmlns?.dataFilename.toUpperCase();
 					return completionItem;
 				});
 		}
@@ -129,6 +129,7 @@ const registerCompletionProvider = (
 						const completionClassName = `${classPrefix}${definition.name}`;
 						completionItem.filterText = completionClassName;
 						completionItem.insertText = completionClassName + "=\"\"";
+						completionItem.detail = "XMLNS: " + xmlns?.dataFilename.toUpperCase();
 						return completionItem;
 					});
 
@@ -168,6 +169,7 @@ function aliasFromDocument(document: TextDocument, position: Position): void {
 		xmlns.urls.forEach(url => {
 			if (allText.includes("\"" + url + "\"")) {
 				xmlns.aliasInDoc = getXmlnsAlias(allText, url);
+				loadAllXmlnsContent(xmlns);
 			}
 		});
 	});

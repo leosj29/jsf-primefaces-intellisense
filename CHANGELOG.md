@@ -1,3 +1,7 @@
+### 1.5.1(Jun 09, 2022)
+* The detail is included in the completion element.
+* Correction in suggestions.
+    
 ### 1.5.0(Jun 06, 2022)
 * Add support for Primefaces 11 Tag Library.
 * Add new XML namespace domain for JSF 2.2.

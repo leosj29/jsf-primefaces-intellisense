@@ -2,7 +2,7 @@
 	"name": "jsf-primefaces-intellisense",
 	"displayName": "JSF Primefaces Intellisense",
 	"description": "JSF and Primefaces IntelliSense",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"publisher": "leosj29",
 	"license": "MIT",
 	"engines": {
