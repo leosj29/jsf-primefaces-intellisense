@@ -1,3 +1,10 @@
+### 1.6.0(Mar 20, 2023)
+* Add support for Primefaces 12 Tag Library.
+* Fix support for Primefaces 11 Tag Library.
+* Dependency Update.
+* Change in the activation event, to improve performance
+* Code cleanup and refactor.
+
 ### 1.5.1(Jun 09, 2022)
 * The detail is included in the completion element.
 * Correction in suggestions.

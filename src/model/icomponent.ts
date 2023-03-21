@@ -1,4 +1,4 @@
-import { IAttribute } from "./iattribute";
+import { IAttribute } from ".";
 
 export interface IComponent {
     description: string;

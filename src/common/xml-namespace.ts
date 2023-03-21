@@ -1,4 +1,4 @@
-import ComponentDefinition from "./component-definition";
+import { ComponentDefinition } from ".";
 
 class XmlNamespace {
     id: string = "";

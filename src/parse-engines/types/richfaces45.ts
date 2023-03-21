@@ -1,6 +1,5 @@
-import IParseEngine from "../common/parse-engine";
-import ComponentExtractor from "../common/component-extractor";
-import ComponentDefinition from "../../common/component-definition";
+import { ComponentDefinition } from "../../common";
+import { ComponentExtractor, IParseEngine } from "../common";
 import * as data from '../data/richfaces45.json';
 
 class Richfaces implements IParseEngine {
