@@ -1,14 +1,13 @@
-import {
-	commands, CompletionItem, CompletionItemKind, Disposable,
-	ExtensionContext, languages, Position, Range, TextDocument, Uri, window,
-	workspace
-} from 'vscode';
 import * as _ from "lodash";
 import * as VError from "verror";
+import {
+	commands, CompletionItem, CompletionItemKind, Disposable,
+	ExtensionContext, languages, Position, Range, TextDocument, window,
+	workspace
+} from 'vscode';
+import { ComponentDefinition, XmlNamespace } from './common';
 import Notifier from "./notifier";
-import ParseEngineGateway from "./parse-engine-gateway";
-import ComponentDefinition from './common/component-definition';
-import XmlNamespace from './common/xml-namespace';
+import ParseEngineGateway from './parse-engine-gateway';
 
 enum Command {
 	cache = "jsf-primefaces-intellisense.cache"

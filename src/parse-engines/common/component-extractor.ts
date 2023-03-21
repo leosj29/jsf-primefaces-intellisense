@@ -1,13 +1,12 @@
-import ComponentDefinition from "../../common/component-definition";
-import { Component } from "../../model/component";
-import { IComponent } from "../../model/icomponent";
+import { ComponentDefinition } from "../../common";
+import { Component, IComponent } from "../../model";
 
 
 export default class ComponentExtractor {
     /**
      * @description Extracts components and attributes from JSON Primefaces
      */
-    public static extract(textJson:string): ComponentDefinition[] {
+    public static extract(textJson: string): ComponentDefinition[] {
         const definitions: ComponentDefinition[] = [];
         const jsonComps = <IComponent[]>JSON.parse(textJson);
         let components: Component[] = [];

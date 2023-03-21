@@ -1,7 +1,7 @@
-import ComponentDefinition from "../../common/component-definition";
+import { ComponentDefinition } from "../../common";
 
 interface IParseEngine {
     taglibId: string;
-    parse(version:string): ComponentDefinition[];
+    parse(version: string): ComponentDefinition[];
 }
 export default IParseEngine;
