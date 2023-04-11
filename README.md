@@ -9,6 +9,9 @@ A Visual Studio Code extension that provides diferentes components completion in
 * RichFaces 4.5
 * JSTL 1.2
 * JSF 2.1 and 2.2
+* Jakarta Server Faces 2.3 and 3.0
+* Jakarta Faces 4.0
+
 
 ![](https://i.imgur.com/r6DrYYu.gif)
 
@@ -24,13 +27,13 @@ A Visual Studio Code extension that provides diferentes components completion in
 * Gives you autocompletion for RichFaces components (<r:) and (<a4j:).
 
 * Automatic detection of xmlns (You must include the namespace mandatory).   
-    * Html Basic -> "http://java.sun.com/jsf/html" or "http://xmlns.jcp.org/jsf/html"
-    * Faces Core -> "http://java.sun.com/jsf/core" or "http://xmlns.jcp.org/jsf/core"
-    * JSTL Core -> ="http://xmlns.jcp.org/jsp/jstl/core"
-    * Composite Components -> "http://java.sun.com/jsf/composite" or "http://xmlns.jcp.org/jsf/composite"
-    * Facelets Templating -> "http://java.sun.com/jsf/facelets" or "http://xmlns.jcp.org/jsf/facelets"
+    * Html Basic -> "http://java.sun.com/jsf/html" or "http://xmlns.jcp.org/jsf/html" or "jakarta.faces.html"
+    * Faces Core -> "http://java.sun.com/jsf/core" or "http://xmlns.jcp.org/jsf/core" or "jakarta.faces.core"
+    * JSTL Core -> ="http://xmlns.jcp.org/jsp/jstl/core" or "jakarta.tags.core"
+    * Composite Components -> "http://java.sun.com/jsf/composite" or "http://xmlns.jcp.org/jsf/composite" or "jakarta.faces.composite"
+    * Facelets Templating -> "http://java.sun.com/jsf/facelets" or "http://xmlns.jcp.org/jsf/facelets" or "jakarta.faces.facelets"
     * PrimeFaces -> "http://primefaces.org/ui"
-    * PrimeFaces Extensions -> "hhttp://primefaces.org/ui/extensions"
+    * PrimeFaces Extensions -> "http://primefaces.org/ui/extensions"
     * OmniFaces -> "http://omnifaces.org/ui"
     * RichFaces -> "http://richfaces.org/rich"
     * RichFaces A4J -> "http://richfaces.org/a4j"
@@ -71,7 +74,7 @@ It's possible to specify which language modes will have autocompletion. There ar
 ## Contributions
 You can request new features and contribute to the extension development on its [repository on GitHub](https://github.com/leosj29/jsf-primefaces-intellisense/issues). Look for an issue you're interested in working on, comment on it to let me know you're working on it and submit your pull request! :D
 
-## What's new in version 1.6.0 (Mar 20, 2023)
+## What's new in version 1.7.0 (Apr 11, 2023)
 
 Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense/blob/master/CHANGELOG.md) for the current and previous updates.
 
@@ -80,6 +83,7 @@ The extension will automatically display the completion options. In case the com
 
 ## Special thanks to
 * [Per-Steinar Karlsen](https://github.com/per-steinar). 
+* [Tito Sanchez](https://github.com/tmsanchez). 
 
 
 ### More User Settings

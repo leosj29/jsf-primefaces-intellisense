@@ -1,6 +1,6 @@
-import { ComponentDefinition } from "../../common";
-import { ComponentExtractor, IParseEngine } from "../common";
-import * as data from '../data/cc.json';
+import { ComponentDefinition } from "../../../common";
+import { ComponentExtractor, IParseEngine } from "../../common";
+import * as data from '../../data/jakarta/cc.json';
 
 class CC implements IParseEngine {
     public taglibId = "cc";

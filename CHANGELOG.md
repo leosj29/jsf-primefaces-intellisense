@@ -1,5 +1,9 @@
+### 1.7.0(Apr 11, 2023)
+* Add support for Jakarta Faces 4.0. (`jsf-primefaces-intellisense.facesVersion`)
+* Add support for Jakarta Server Faces 2.3 and 3.0 (`jsf-primefaces-intellisense.facesVersion`)
+
 ### 1.6.0(Mar 20, 2023)
-* Add support for Primefaces 12 Tag Library.
+* Add support for Primefaces 12 Tag Library. (`jsf-primefaces-intellisense.primeVersion`)
 * Fix support for Primefaces 11 Tag Library.
 * Dependency Update.
 * Change in the activation event, to improve performance

@@ -1,6 +1,6 @@
-import { ComponentDefinition } from "../../common";
-import { ComponentExtractor, IParseEngine } from "../common";
-import * as data from '../data/richfaces45-a4j.json';
+import { ComponentDefinition } from "../../../common";
+import { ComponentExtractor, IParseEngine } from "../../common";
+import * as data from '../../data/richfaces/richfaces45-a4j.json';
 
 class RichfacesA4J implements IParseEngine {
     public taglibId = "richfaces45-a4j";
