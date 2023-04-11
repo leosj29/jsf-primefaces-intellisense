@@ -15,27 +15,76 @@ enum Command {
 
 enum Configuration {
 	languages = "jsf-primefaces-intellisense.languages",
-	primeVersion = "jsf-primefaces-intellisense.primeVersion"
+	primeVersion = "jsf-primefaces-intellisense.primeVersion",
+	facesVersion = "jsf-primefaces-intellisense.facesVersion"
 }
 
 const notifier: Notifier = new Notifier(Command.cache);
 const completionTriggerChars = ['"', "'", " ", "."];
 let caching = false;
+let changeTags = false;
 const htmlDisposables: Disposable[] = [];
 
-// Variable with the information of the supported xmlns
+const isJakartaVersion = (): boolean => {
+	const faces: string = workspace.getConfiguration().get<string>(Configuration.facesVersion) || '';
+	if (faces === "Java Server Faces (1.0 - 2.2)" || faces === "Jakarta Server Faces (2.3 - 3.0)") {
+		return false;
+	}
+	return true;
+}
+
 const supportedXmlNamespaces: XmlNamespace[] = [
-	{ id: "a4j", urls: ["http://richfaces.org/a4j"], dataFilename: "richfaces45-a4j", uniqueDefinitions: [] },
-	{ id: "c", urls: ["http://xmlns.jcp.org/jsp/jstl/core"], dataFilename: "c", uniqueDefinitions: [] },
-	{ id: "cc", urls: ["http://java.sun.com/jsf/composite", "http://xmlns.jcp.org/jsf/composite"], dataFilename: "cc", uniqueDefinitions: [] },
-	{ id: "f", urls: ["http://java.sun.com/jsf/core", "http://xmlns.jcp.org/jsf/core"], dataFilename: "f", uniqueDefinitions: [] },
-	{ id: "h", urls: ["http://java.sun.com/jsf/html", "http://xmlns.jcp.org/jsf/html"], dataFilename: "h", uniqueDefinitions: [] },
-	{ id: "o", urls: ["http://omnifaces.org/ui"], dataFilename: "omnifaces", uniqueDefinitions: [] },
-	{ id: "p", urls: ["http://primefaces.org/ui"], dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? "", uniqueDefinitions: [] },
-	{ id: "pe", urls: ["http://primefaces.org/ui/extensions"], dataFilename: "primefaces-extensions", uniqueDefinitions: [] },
-	{ id: "r", urls: ["http://richfaces.org/rich"], dataFilename: "richfaces45", uniqueDefinitions: [] },
-	{ id: "ui", urls: ["http://java.sun.com/jsf/facelets", "http://xmlns.jcp.org/jsf/facelets"], dataFilename: "ui", uniqueDefinitions: [] }
+	{
+		id: "a4j", urls: ["http://richfaces.org/a4j"],
+		dataFilename: "richfaces45-a4j",
+		uniqueDefinitions: []
+	},
+	{
+		id: "o", urls: ["http://omnifaces.org/ui"], dataFilename: "omnifaces",
+		uniqueDefinitions: []
+	},
+	{
+		id: "p", urls: ["http://primefaces.org/ui"],
+		dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? "",
+		uniqueDefinitions: []
+	},
+	{
+		id: "pe", urls: ["http://primefaces.org/ui/extensions"],
+		dataFilename: "primefaces-extensions",
+		uniqueDefinitions: []
+	},
+	{
+		id: "r", urls: ["http://richfaces.org/rich"],
+		dataFilename: "richfaces45",
+		uniqueDefinitions: []
+	},
+	{
+		id: "c", urls: !isJakartaVersion() ? ["http://xmlns.jcp.org/jsp/jstl/core"] : ["jakarta.tags.core"],
+		dataFilename: 'c',
+		uniqueDefinitions: []
+	},
+	{
+		id: "cc", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/composite", "http://xmlns.jcp.org/jsf/composite"] : ["jakarta.faces.composite"],
+		dataFilename: 'cc',
+		uniqueDefinitions: []
+	},
+	{
+		id: "f", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/core", "http://xmlns.jcp.org/jsf/core"] : ["jakarta.faces.core"],
+		dataFilename: 'f',
+		uniqueDefinitions: []
+	},
+	{
+		id: "h", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/html", "http://xmlns.jcp.org/jsf/html"] : ["jakarta.faces.html"],
+		dataFilename: 'h',
+		uniqueDefinitions: []
+	},
+	{
+		id: "ui", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/facelets", "http://xmlns.jcp.org/jsf/facelets"] : ["jakarta.faces.facelets"],
+		dataFilename: 'ui',
+		uniqueDefinitions: []
+	}
 ];
+
 
 /**
  * Method for clearing cache
@@ -317,7 +366,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
 	const disposables: Disposable[] = [];
 	workspace.onDidChangeConfiguration(async (e) => {
 		try {
-			if (e.affectsConfiguration(Configuration.languages)) {
+			if (e.affectsConfiguration(Configuration.languages)
+				|| e.affectsConfiguration(Configuration.primeVersion)
+				|| e.affectsConfiguration(Configuration.facesVersion)) {
 				unregisterProviders(htmlDisposables);
 				registerComponentProviders(htmlDisposables);
 			}
@@ -327,6 +378,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 			window.showErrorMessage(newErr.message);
 		}
 	}, null, disposables);
+
 	context.subscriptions.push(...disposables);
 
 	context.subscriptions.push(commands.registerCommand(Command.cache, async () => {

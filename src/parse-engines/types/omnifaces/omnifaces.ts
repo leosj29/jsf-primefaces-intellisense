@@ -1,6 +1,6 @@
-import { ComponentDefinition } from "../../common";
-import { ComponentExtractor, IParseEngine } from "../common";
-import * as data from '../data/omnifaces.json';
+import { ComponentDefinition } from "../../../common";
+import { ComponentExtractor, IParseEngine } from "../../common";
+import * as data from '../../data/omnifaces/omnifaces.json';
 
 class Omnifaces implements IParseEngine {
     public taglibId = "omnifaces";

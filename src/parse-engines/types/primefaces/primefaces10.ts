@@ -1,6 +1,6 @@
-import { ComponentDefinition } from "../../common";
-import { ComponentExtractor, IParseEngine } from "../common";
-import * as data from '../data/primefaces10.json';
+import { ComponentDefinition } from "../../../common";
+import { ComponentExtractor, IParseEngine } from "../../common";
+import * as data from '../../data/primefaces/primefaces10.json';
 
 class Primefaces10 implements IParseEngine {
     public taglibId = "primefaces10";

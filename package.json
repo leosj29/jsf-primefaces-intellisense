@@ -2,7 +2,7 @@
     "name": "jsf-primefaces-intellisense",
     "displayName": "JSF Primefaces Intellisense",
     "description": "JSF and Primefaces IntelliSense",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "publisher": "leosj29",
     "license": "MIT",
     "engines": {
@@ -10,13 +10,15 @@
     },
     "keywords": [
         "a4j",
-        "autocomplete",
         "html",
         "intellisense",
         "jsf",
+        "java",
+        "jakarta",
+        "server",
+        "faces",
         "omnifaces",
         "primefaces",
-        "extensions",
         "rich",
         "richfaces",
         "xhtml"
@@ -62,7 +64,16 @@
                             "primefaces12"
                         ],
                         "default": "primefaces8",
-                        "description": "Version of PrimeFaces Components(Only primefaces 8, 10, 11 and 12)."
+                        "description": "Version of PrimeFaces Components(Only primefaces 8, 10, 11 and 12). (Restart Required)."
+                    },
+                    "jsf-primefaces-intellisense.facesVersion": {
+                        "enum": [
+                            "Java Server Faces (1.0 - 2.2)",
+                            "Jakarta Server Faces (2.3 - 3.0)",
+                            "Jakarta Faces 4.0"
+                        ],
+                        "default": "Java Server Faces (1.0 - 2.2)",
+                        "description": "Version of Java o Jakarta Faces. (Restart Required)."
                     }
                 }
             }
