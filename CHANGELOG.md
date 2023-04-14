@@ -1,3 +1,26 @@
+### 1.8.0(Apr 14, 2023)
+* The source code was refactored and simplified.
+* Several properties were created to configure the versions of the taglibs:
+    * PrimeFaces (`jsf-primefaces-intellisense.primeVersion`)
+        * `primefaces-8.0.0`
+        * `primefaces-10.0.0`
+        * `primefaces-11.0.0`
+        * `primefaces-12.0.0`
+    * PrimeFaces Extensions (`jsf-primefaces-intellisense.primeExtVersion`)
+        * `primefaces-extensions-10.0.0"`
+        * `primefaces-extensions-11.0.0"`
+        * `primefaces-extensions-12.0.0"`
+        * `primefaces-extensions-12.0.6`
+    * OmniFaces (`jsf-primefaces-intellisense.omniVersion`)
+        * `omnifaces-3.0`
+        * `omnifaces-4.0`
+    * RichFaces (`jsf-primefaces-intellisense.richVersion`)
+        * `richfaces-4.5.1`
+    * Faces (`jsf-primefaces-intellisense.facesVersion`)
+        * `java-server-faces(1.0 - 2.2)`
+        * `jakarta-server-faces(2.3 - 3.0)`
+        * `jakarta-faces-4.0`
+
 ### 1.7.0(Apr 11, 2023)
 * Add support for Jakarta Faces 4.0. (`jsf-primefaces-intellisense.facesVersion`)
 * Add support for Jakarta Server Faces 2.3 and 3.0 (`jsf-primefaces-intellisense.facesVersion`)
