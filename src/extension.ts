@@ -16,6 +16,9 @@ enum Command {
 enum Configuration {
 	languages = "jsf-primefaces-intellisense.languages",
 	primeVersion = "jsf-primefaces-intellisense.primeVersion",
+	primeExtVersion = "jsf-primefaces-intellisense.primeExtVersion",
+	omniVersion = "jsf-primefaces-intellisense.omniVersion",
+	richVersion = "jsf-primefaces-intellisense.richVersion",
 	facesVersion = "jsf-primefaces-intellisense.facesVersion"
 }
 
@@ -27,59 +30,75 @@ const htmlDisposables: Disposable[] = [];
 
 const isJakartaVersion = (): boolean => {
 	const faces: string = workspace.getConfiguration().get<string>(Configuration.facesVersion) || '';
-	if (faces === "Java Server Faces (1.0 - 2.2)" || faces === "Jakarta Server Faces (2.3 - 3.0)") {
+	if (faces === "java-server-faces(1.0 - 2.2)" || faces === "jakarta-server-faces(2.3 - 3.0)") {
 		return false;
 	}
 	return true;
 }
 
+const richFacesSubTag = (subtag: string): string => {
+	const rich: string = workspace.getConfiguration().get<string>(Configuration.richVersion) || '';
+	const vers = rich.substring(rich.lastIndexOf('-'));
+	return `${subtag}${vers}`;
+}
+
 const supportedXmlNamespaces: XmlNamespace[] = [
 	{
-		id: "a4j", urls: ["http://richfaces.org/a4j"],
-		dataFilename: "richfaces45-a4j",
+		id: "a4j",
+		urls: ["http://richfaces.org/a4j"],
+		dataFilename: richFacesSubTag("a4j"),
+		uniqueDefinitions: []
+	}, {
+		id: "r",
+		urls: ["http://richfaces.org/rich"],
+		dataFilename: richFacesSubTag("richfaces"),
 		uniqueDefinitions: []
 	},
 	{
-		id: "o", urls: ["http://omnifaces.org/ui"], dataFilename: "omnifaces",
+		id: "o",
+		urls: ["http://omnifaces.org/ui"],
+		dataFilename: workspace.getConfiguration().get<string>(Configuration.omniVersion) ?? "",
 		uniqueDefinitions: []
 	},
 	{
-		id: "p", urls: ["http://primefaces.org/ui"],
+		id: "p",
+		urls: ["http://primefaces.org/ui"],
 		dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? "",
 		uniqueDefinitions: []
 	},
 	{
-		id: "pe", urls: ["http://primefaces.org/ui/extensions"],
-		dataFilename: "primefaces-extensions",
+		id: "pe",
+		urls: ["http://primefaces.org/ui/extensions"],
+		dataFilename: workspace.getConfiguration().get<string>(Configuration.primeExtVersion) ?? "",
 		uniqueDefinitions: []
 	},
 	{
-		id: "r", urls: ["http://richfaces.org/rich"],
-		dataFilename: "richfaces45",
-		uniqueDefinitions: []
-	},
-	{
-		id: "c", urls: !isJakartaVersion() ? ["http://xmlns.jcp.org/jsp/jstl/core"] : ["jakarta.tags.core"],
+		id: "c",
+		urls: !isJakartaVersion() ? ["http://xmlns.jcp.org/jsp/jstl/core"] : ["jakarta.tags.core"],
 		dataFilename: 'c',
 		uniqueDefinitions: []
 	},
 	{
-		id: "cc", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/composite", "http://xmlns.jcp.org/jsf/composite"] : ["jakarta.faces.composite"],
+		id: "cc",
+		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/composite", "http://xmlns.jcp.org/jsf/composite"] : ["jakarta.faces.composite"],
 		dataFilename: 'cc',
 		uniqueDefinitions: []
 	},
 	{
-		id: "f", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/core", "http://xmlns.jcp.org/jsf/core"] : ["jakarta.faces.core"],
+		id: "f",
+		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/core", "http://xmlns.jcp.org/jsf/core"] : ["jakarta.faces.core"],
 		dataFilename: 'f',
 		uniqueDefinitions: []
 	},
 	{
-		id: "h", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/html", "http://xmlns.jcp.org/jsf/html"] : ["jakarta.faces.html"],
+		id: "h",
+		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/html", "http://xmlns.jcp.org/jsf/html"] : ["jakarta.faces.html"],
 		dataFilename: 'h',
 		uniqueDefinitions: []
 	},
 	{
-		id: "ui", urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/facelets", "http://xmlns.jcp.org/jsf/facelets"] : ["jakarta.faces.facelets"],
+		id: "ui",
+		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/facelets", "http://xmlns.jcp.org/jsf/facelets"] : ["jakarta.faces.facelets"],
 		dataFilename: 'ui',
 		uniqueDefinitions: []
 	}
@@ -366,9 +385,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 	const disposables: Disposable[] = [];
 	workspace.onDidChangeConfiguration(async (e) => {
 		try {
-			if (e.affectsConfiguration(Configuration.languages)
-				|| e.affectsConfiguration(Configuration.primeVersion)
-				|| e.affectsConfiguration(Configuration.facesVersion)) {
+			if (e.affectsConfiguration(Configuration.languages)) {
 				unregisterProviders(htmlDisposables);
 				registerComponentProviders(htmlDisposables);
 			}

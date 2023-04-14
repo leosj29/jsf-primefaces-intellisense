@@ -14,9 +14,14 @@ export default class ComponentExtractor {
         jsonComps.forEach(jsonComp => {
             let component = new Component(jsonComp.description, jsonComp.name);
             if (typeof (jsonComp.attribute) !== 'undefined') {
-                jsonComp.attribute.forEach(jsonAtt => {
-                    component.addAtribute(jsonAtt.description, jsonAtt.name, jsonAtt.required, jsonAtt.type);
-                });
+                if (jsonComp.attribute.length > 0) {
+                    jsonComp.attribute.forEach(jsonAtt => {
+                        component.addAtribute(jsonAtt.description, jsonAtt.name, jsonAtt.required, jsonAtt.type);
+                    });
+                } else {
+                    const attComp: any = jsonComp.attribute;
+                    component.addAtribute(attComp.description, attComp.name, attComp.required, attComp.type);
+                }
             }
             components.push(component);
             definitions.push(new ComponentDefinition(component));
