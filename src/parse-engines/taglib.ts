@@ -12,7 +12,7 @@ class TagLib implements IParseEngine {
         this.version = version;
     }
     public parse(): ComponentDefinition[] {
-        const jsonPath = path.join(__dirname, '..', 'data', this.folder, `${this.version}.json`);
+        const jsonPath = path.join(__dirname, 'data', this.folder, `${this.version}.json`);
         const jsonFile = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
         return ComponentExtractor.extract(JSON.stringify(jsonFile.components.component));
     }

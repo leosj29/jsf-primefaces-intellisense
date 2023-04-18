@@ -25,7 +25,6 @@ enum Configuration {
 const notifier: Notifier = new Notifier(Command.cache);
 const completionTriggerChars = ['"', "'", " ", "."];
 let caching = false;
-let changeTags = false;
 const htmlDisposables: Disposable[] = [];
 
 const isJakartaVersion = (): boolean => {
