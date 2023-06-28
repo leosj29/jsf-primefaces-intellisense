@@ -1,0 +1,13 @@
+{
+  "scopeName": "text.html.jsf",
+  "name": "Java Server Faces",
+  "fileTypes": [
+    "xhtml",
+    "jsf"
+  ],
+  "patterns": [
+    {
+      "include": "text.html.basic"
+    }
+  ]
+}

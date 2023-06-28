@@ -1,0 +1,335 @@
+{
+  "scopeName": "source.el",
+  "name": "Java Expression Language",
+  "patterns": [
+    {
+      "include": "#code"
+    }
+  ],
+  "repository": {
+    "code": {
+      "patterns": [
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#objects"
+        },
+        {
+          "include": "#parens"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.delimiter.el"
+        },
+        {
+          "match": "\\.",
+          "name": "punctuation.separator.period.eø"
+        }
+      ]
+    },
+    "objects": {
+      "patterns": [
+        {
+          "include": "#object-reference"
+        },
+        {
+          "include": "#tag-reference"
+        },
+        {
+          "include": "#js-reference"
+        },
+        {
+          "include": "#object-property-reference"
+        },
+        {
+          "include": "#object-property-call"
+        },
+        {
+          "include": "#object-methode-call"
+        }
+      ]
+    },
+    "object-reference": {
+      "comment": "Object Reference",
+      "begin": "(\\.)?(\\w+)(?:\\b)(\\.)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.separator.period.el"
+        },
+        "2": {
+          "name": "variable.other.object.el"
+        },
+        "3": {
+          "name": "punctuation.separator.period.el"
+        }
+      },
+      "end": "(?:\\b)"
+    },
+    "tag-reference": {
+      "comment": "JSF Tag Reference",
+      "begin": "(?<!\\.)(\\w+)(?:\\b)(\\:)",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.tag.el"
+        },
+        "2": {
+          "name": "punctuation.separator.colon.el"
+        }
+      },
+      "end": "(?:\\b)"
+    },
+    "js-reference": {
+      "comment": "JavaScript Reference",
+      "begin": "(\\$\\w+)(?:\\b)(\\.)",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.other.object.el"
+        },
+        "2": {
+          "name": "punctuation.separator.period.el"
+        }
+      },
+      "end": "(?:\\b)"
+    },
+    "object-property-reference": {
+      "comment": "Object Properties Reference",
+      "begin": "(\\.)?(\\w+)(?:\\b)(?=[}\\s)\\',])(?![\\.\\(\\[])",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.separator.period.el"
+        },
+        "2": {
+          "name": "variable.other.parameter.el"
+        }
+      },
+      "end": "(?:\\b)"
+    },
+    "object-property-call": {
+      "comment": "Object Properties Call",
+      "begin": "(\\.)?(\\w+)(\\[)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.separator.period.el"
+        },
+        "2": {
+          "name": "entity.name.function.el"
+        },
+        "3": {
+          "name": "punctuation.definition.parameters.begin.bracket.square.el"
+        }
+      },
+      "end": "(\\])",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.parameters.end.bracket.square.el"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#code"
+        }
+      ]
+    },
+    "object-methode-call": {
+      "comment": "Object Methode Call",
+      "begin": "(\\.)?(\\w+)(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.separator.period.el"
+        },
+        "2": {
+          "name": "entity.name.function.el"
+        },
+        "3": {
+          "name": "punctuation.definition.parameters.begin.bracket.round.el"
+        }
+      },
+      "end": "(\\))",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.parameters.end.bracket.round.el"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#code"
+        }
+      ]
+    },
+    "literals": {
+      "patterns": [
+        {
+          "include": "#numbers"
+          
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#constants-and-special-vars"
+        },
+        {
+          "include": "#escaped-characters"
+        }
+      ]
+    },
+    "numbers": {
+      "comment": "Numbers",
+      "match": "(?x)\n(?<!\\$)\n(\n  \\b[0-9]([0-9_]*[0-9])?\\.\\B(?!\\.)\n  |\n  \\b[0-9]([0-9_]*[0-9])?\\.([Ee][+-]?[0-9]([0-9_]*[0-9])?)[FfDd]?\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?\\.([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?\\.([0-9]([0-9_]*[0-9])?)([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]?\\b\n  |\n  (?<!\\.)\\B\\.[0-9]([0-9_]*[0-9])?([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]?\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?([Ee][+-]?[0-9]([0-9_]*[0-9])?)[FfDd]?\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]\\b\n  |\n  \\b(0|[1-9]([0-9_]*[0-9])?)(?!\\.)[Ll]?\\b\n)\n(?!\\$)",
+      "captures": {
+        "1": {
+          "name": "constant.numeric.decimal.el"
+        }
+      }
+    },
+    "strings": {
+      "name": "string.quoted.single.el",
+      "begin": "'",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.el"
+        }
+      },
+      "end": "'",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.el"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#object"
+        },
+        {
+          "include": "#escaped-characters"
+        }
+      ]
+    },
+    "escaped-characters": {
+      "patterns": [
+        {
+          "match":"(\\\\\\\\|\\\\\"|\\\\'|\\\\\\$|\\\\#)",
+          "name": "constant.character.escape.el"
+        }
+      ]
+    },
+    "constants-and-special-vars": {
+      "patterns": [
+        {
+          "match": "\\b(true|false|null|empty)\\b",
+          "name": "constant.language.el"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "match": "\\?|:",
+          "name": "keyword.control.ternary.el"
+        },
+        {
+          "match": "\\b(return|yield|break|case|continue|default|do|while|for|switch|if|else)\\b",
+          "name": "keyword.control.el"
+        },
+        {
+          "match": "\\b(instanceof)\\b",
+          "name": "keyword.operator.instanceof.el"
+        },
+        {
+          "match": "(==|!=|<=|>=|<>|<|>)",
+          "name": "keyword.operator.comparison.el"
+        },
+        {
+          "match": "\\b(eq|ne|lt|gt|le|ge)\\b",
+          "name": "keyword.operator.comparison.el"
+        },
+        {
+          "match": "([+*/%-]=)",
+          "name": "keyword.operator.assignment.arithmetic.el"
+        },
+        {
+          "match": "(=)",
+          "name": "keyword.operator.assignment.el"
+        },
+        {
+          "match": "(\\-\\-|\\+\\+)",
+          "name": "keyword.operator.increment-decrement.el"
+        },
+        {
+          "match": "(\\-|\\+|\\*|\\/|%)",
+          "name": "keyword.operator.arithmetic.el"
+        },
+        {
+          "match": "\\b(div|mod)\\b",
+          "name": "keyword.operator.arithmetic.el"
+        },
+        {
+          "match": "(!|&&|\\|\\|)",
+          "name": "keyword.operator.logical.el"
+        },
+        {
+          "match": "\\b(not|and|or)\\b",
+          "name": "keyword.operator.logical.el"
+        },
+        {
+          "match": "(\\||&)",
+          "name": "keyword.operator.bitwise.el"
+        }
+      ]
+    },
+    "lambda-expression": {
+      "patterns": [
+        {
+          "match": "->",
+          "name": "storage.type.function.arrow.el"
+        }
+      ]
+    },
+    "parens": {
+      "patterns": [
+        {
+          "begin": "\\(",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.bracket.round.el"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.bracket.round.el"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#code"
+            }
+          ]
+        },
+        {
+          "begin": "\\[",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.bracket.square.el"
+            }
+          },
+          "end": "\\]",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.bracket.square.el"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#code"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
