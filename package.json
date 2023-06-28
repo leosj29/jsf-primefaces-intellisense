@@ -102,6 +102,32 @@
                     }
                 }
             }
+        ],
+        "languages": [
+            {
+                "id": "el",
+                "aliases": [
+                    "Java EE Expression Language"
+                ],
+                "configuration": "./language/el.language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "el",
+                "scopeName": "source.el",
+                "path": "./syntaxes/el.json"
+            },
+            {
+                "scopeName": "inline-el.injection",
+                "path": "./syntaxes/el-injection.json",
+                "injectTo": [
+                    "text.html.derivative"
+                ],
+                "embeddedLanguages": {
+                    "source.el": "el"
+                }
+            }
         ]
     },
     "icon": "images/icon.png",
