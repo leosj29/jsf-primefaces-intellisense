@@ -55,7 +55,7 @@
     },
     "object-reference": {
       "comment": "Object Reference",
-      "begin": "(\\.)?(\\w+)(?:\\b)(\\.)",
+      "begin": "(?<!\\$)(\\.)?(\\b\\w+\\b)(\\.)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.separator.period.el"
@@ -71,7 +71,7 @@
     },
     "tag-reference": {
       "comment": "JSF Tag Reference",
-      "begin": "(?<!\\.)(\\w+)(?:\\b)(\\:)",
+      "begin": "(?<![\\.\\$])(\\b\\w+\\b)(\\:)",
       "beginCaptures": {
         "1": {
           "name": "entity.name.tag.el"
@@ -84,10 +84,10 @@
     },
     "js-reference": {
       "comment": "JavaScript Reference",
-      "begin": "(\\$\\w+)(?:\\b)(\\.)",
+      "begin": "(?<!\\\\)(\\$\\w+\\b)(\\.)",
       "beginCaptures": {
         "1": {
-          "name": "variable.other.object.el"
+          "name": "variable.other.object.el2"
         },
         "2": {
           "name": "punctuation.separator.period.el"
@@ -97,7 +97,7 @@
     },
     "object-property-reference": {
       "comment": "Object Properties Reference",
-      "begin": "(\\.)?(\\w+)(?:\\b)(?=[}\\s)\\',])(?![\\.\\(\\[])",
+      "begin": "(?<!\\$)(\\.)?(\\b\\w+\\b)(?=[}\\s)\\',])(?![\\.\\(\\[])",
       "beginCaptures": {
         "1": {
           "name": "punctuation.separator.period.el"
@@ -110,7 +110,7 @@
     },
     "object-property-call": {
       "comment": "Object Properties Call",
-      "begin": "(\\.)?(\\w+)(\\[)",
+      "begin": "(?<!\\$)(\\.)?(\\b\\w+\\b)(\\[)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.separator.period.el"
@@ -136,7 +136,7 @@
     },
     "object-methode-call": {
       "comment": "Object Methode Call",
-      "begin": "(\\.)?(\\w+)(\\()",
+      "begin": "(?<!\\$)(\\.)?(\\b\\w+)(\\()",
       "beginCaptures": {
         "1": {
           "name": "punctuation.separator.period.el"
@@ -164,7 +164,6 @@
       "patterns": [
         {
           "include": "#numbers"
-          
         },
         {
           "include": "#strings"
@@ -202,7 +201,7 @@
       },
       "patterns": [
         {
-          "include": "#object"
+          "include": "#objects"
         },
         {
           "include": "#escaped-characters"
