@@ -1,0 +1,52 @@
+{
+  "scopeName": "inline-el.injection",
+  "fileTypes": [
+    "xhtml",
+    "jsf"
+  ],
+  "injectionSelector": [
+      "text.html.jsf"
+  ],
+  "patterns": [
+    {
+      "comment": "JSF Deferred Evaluation",
+      "begin": "(#{)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.section.embedded.begin.el"
+        }
+      },
+      "end": "(})",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.el"
+        }
+      },
+      "patterns": [
+        {
+            "include": "source.el"
+        }
+      ]
+    },
+    {
+      "comment": "JSF Immediate Evaluation",
+      "begin": "(\\${)",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.begin.el"
+        }
+      },
+      "end": "(})",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.el"
+        }
+      },
+      "patterns": [
+        {
+            "include": "source.el"
+        }
+      ]
+    }
+  ]
+}
