@@ -102,58 +102,6 @@
                     }
                 }
             }
-        ],
-        "languages": [
-            {
-                "id": "jsf",
-                "aliases": [
-                    "Jakarta Faces",
-                    "Jakarta Server Faces",
-                    "JavaServer Faces"
-                ],
-                "configuration": "./language/jsf.language-configuration.json",
-                "extensions": [
-                    ".xhtml"
-                ],
-                "icon": {
-                    "light": "./images/jakarta.ico",
-                    "dark": "./images/jakarta.ico"
-                }
-            },
-            {
-                "id": "el",
-                "aliases": [
-                    "Java EE Expression Language"
-                ],
-                "configuration": "./language/el.language-configuration.json"
-            }
-        ],
-        "grammars": [
-            {
-                "language": "el",
-                "scopeName": "source.el",
-                "path": "./syntaxes/el.json"
-            },
-            {
-                "language": "jsf",
-                "scopeName": "text.html.jsf",
-                "path": "./syntaxes/text.html.jsf.json",
-                "embeddedLanguages": {
-                    "text.html": "html",
-                    "source.js": "javascript",
-                    "source.css": "css"
-                }
-            },
-            {
-                "scopeName": "inline-el.injection",
-                "path": "./syntaxes/el-injection.json",
-                "injectTo": [
-                    "text.html.jsf"
-                ],
-                "embeddedLanguages": {
-                    "source.el": "el"
-                }
-            }
         ]
     },
     "icon": "images/icon.png",
