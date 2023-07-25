@@ -2,7 +2,7 @@
     "name": "jsf-primefaces-intellisense",
     "displayName": "JSF Primefaces Intellisense",
     "description": "JSF and Primefaces IntelliSense",
-    "version": "1.8.1",
+    "version": "1.9.0",
     "publisher": "leosj29",
     "license": "MIT",
     "engines": {
@@ -58,32 +58,32 @@
                     },
                     "jsf-primefaces-intellisense.primeVersion": {
                         "enum": [
-                            "primefaces-8.0.0",
-                            "primefaces-10.0.0",
-                            "primefaces-11.0.0",
+                            "primefaces-13.0.0",
                             "primefaces-12.0.0",
-                            "primefaces-13.0.0"
+                            "primefaces-11.0.0",
+                            "primefaces-10.0.0",
+                            "primefaces-8.0.0"
                         ],
-                        "default": "primefaces-8.0.0",
+                        "default": "primefaces-13.0.0",
                         "description": "PrimeFaces Version. (Restart Required)."
                     },
                     "jsf-primefaces-intellisense.primeExtVersion": {
                         "enum": [
-                            "primefaces-extensions-10.0.0",
-                            "primefaces-extensions-11.0.0",
-                            "primefaces-extensions-12.0.0",
+                            "primefaces-extensions-13.0.0",
                             "primefaces-extensions-12.0.6",
-                            "primefaces-extensions-13.0.0"
+                            "primefaces-extensions-12.0.0",
+                            "primefaces-extensions-11.0.0",
+                            "primefaces-extensions-10.0.0"
                         ],
-                        "default": "primefaces-extensions-10.0.0",
+                        "default": "primefaces-extensions-13.0.0",
                         "description": "PrimeFaces Extensions Version. (Restart Required)."
                     },
                     "jsf-primefaces-intellisense.omniVersion": {
                         "enum": [
-                            "omnifaces-3.0",
-                            "omnifaces-4.0"
+                            "omnifaces-4.0",
+                            "omnifaces-3.0"
                         ],
-                        "default": "omnifaces-3.0",
+                        "default": "omnifaces-4.0",
                         "description": "OmniFaces Version. (Restart Required)."
                     },
                     "jsf-primefaces-intellisense.richVersion": {
@@ -95,11 +95,11 @@
                     },
                     "jsf-primefaces-intellisense.facesVersion": {
                         "enum": [
-                            "java-server-faces(1.0 - 2.2)",
+                            "jakarta-faces-4.0",
                             "jakarta-server-faces(2.3 - 3.0)",
-                            "jakarta-faces-4.0"
+                            "java-server-faces(1.0 - 2.2)"
                         ],
-                        "default": "java-server-faces(1.0 - 2.2)",
+                        "default": "jakarta-faces-4.0",
                         "description": "Faces Version. (Restart Required)."
                     }
                 }

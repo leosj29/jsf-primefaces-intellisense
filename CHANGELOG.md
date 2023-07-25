@@ -1,3 +1,10 @@
+### 1.9.0(Jul 25, 2023)
+
+* Includes support for PrimeFaces version 13.0.0
+* Includes support for PrimeFaces Extensions version 13.0.0
+* Changed the icon used for JSF element attributes.
+* The taglibs versions are sorted in descending order, and the latest versions are set as the default.
+
 ### 1.8.0(Apr 14, 2023)
 * The source code was refactored and simplified.
 * Several properties were created to configure the versions of the taglibs:
