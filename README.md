@@ -3,8 +3,8 @@
 A Visual Studio Code extension that provides diferentes components completion in the HTML, XHTML and JSF. Based on the official Taglib definitions.
 
 # Taglib supported for
-* Primefaces (8.x, 10.x, 11.x, 12.x)
-* Primefaces Extensions (10.x, 11.x, 12.x)
+* Primefaces (8.x, 10.x, 11.x, 12.x, 13.x)
+* Primefaces Extensions (10.x, 11.x, 12.x, 13.x)
 * OmniFaces (3.x, 4.x)
 * RichFaces (4.5.x)
 * JSF (2.1, 2.2)
@@ -73,7 +73,7 @@ It's possible to specify which language modes will have autocompletion. There ar
 ## Contributions
 You can request new features and contribute to the extension development on its [repository on GitHub](https://github.com/leosj29/jsf-primefaces-intellisense/issues). Look for an issue you're interested in working on, comment on it to let me know you're working on it and submit your pull request! :D
 
-## What's new in version 1.8.0 (Apr 14, 2023)
+## What's new in version 1.9.0 (Jul 25, 2023)
 
 Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense/blob/master/CHANGELOG.md) for the current and previous updates.
 
@@ -81,7 +81,8 @@ Check out the [changelog](https://github.com/leosj29/jsf-primefaces-intellisense
 The extension will automatically display the completion options. In case the completion is not showing, you can run the command by pressing `Ctrl+Shift+P`(`Cmd+Shift+P` for Mac) and then typing "JSF and PrimeFaces Cache".
 
 ## Special thanks to
-* [Per-Steinar Karlsen](https://github.com/per-steinar). 
+* [Melloware](https://github.com/melloware). 
+* [Per-Steinar Karlsen](https://github.com/per-steinar).
 * [Tito Sanchez](https://github.com/tmsanchez). 
 
 
