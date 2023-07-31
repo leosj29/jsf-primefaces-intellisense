@@ -129,6 +129,12 @@ async function cache(): Promise<void> {
 	}
 }
 
+enum Resolving {
+	NsPrefix,
+	Element,
+	Attribute
+}
+
 /**
  * Main method
  * 
@@ -144,23 +150,47 @@ const registerCompletionProvider = (
 		const start: Position = new Position(position.line, 0);
 		const range: Range = new Range(start, position);
 		const text: string = document.getText(range);
-		let autoSearch: string = '';
-		let xmlnsPrefix: string = text.trimStart();
+		let resolving: Resolving;
+		const trimmedText = text.trimStart();
+		let xmlnsPrefix: string;
 
-		if (!xmlnsPrefix.includes(' ')) {
-			let ind = xmlnsPrefix.indexOf(':');
-			if (ind > -1 && ind + 1 < xmlnsPrefix.length) {
-				autoSearch = xmlnsPrefix.substring(ind + 1);
-				xmlnsPrefix = xmlnsPrefix.substring(0, ind + 1);
+		if (trimmedText.startsWith("<")) {
+			let indFirstCol = trimmedText.indexOf(':');
+			if (indFirstCol > -1 && indFirstCol <= trimmedText.length) {
+				xmlnsPrefix = trimmedText.substring(1, indFirstCol);
+				let indFirstSpace = trimmedText.indexOf(' ');
+				if (indFirstSpace > -1 && indFirstSpace <= trimmedText.length) {
+					resolving = Resolving.Attribute;
+				} else {
+					resolving = Resolving.Element;
+				}
+				
+			} else {
+				xmlnsPrefix = trimmedText.substring(1);
+				resolving = Resolving.NsPrefix;
 			}
-		}
-		else {
-			xmlnsPrefix = text.trim();
+		} else {
+			resolving = Resolving.Attribute;
 		}
 		aliasFromDocument(document, position);
-		let xmlns = supportedXmlNamespaces.find(xmlns => xmlns.aliasInDoc === xmlnsPrefix);
 
+		// Find available namespaces
+		if (resolving === Resolving.NsPrefix) {
+			return supportedXmlNamespaces
+				.filter(xmlns => xmlns.aliasInDoc)
+				.map(xmlns => {
+					const completionItem = new CompletionItem(xmlns.aliasInDoc!, CompletionItemKind.Property);
+					completionItem.documentation = xmlns.description;
+					const completionClassName = `${xmlns.aliasInDoc}`;
+					completionItem.filterText = completionClassName;
+					completionItem.insertText = completionClassName + ":";
+					completionItem.detail = `XMLNS: ${xmlns.dataFilename.toUpperCase()} - ${xmlns.description}`;
+					return completionItem;
+				});
+		}
 		// Find the components
+		else if (resolving === Resolving.Element) {
+			const xmlns = supportedXmlNamespaces.find(xmlns => xmlns.aliasInDoc === xmlnsPrefix);
 			return xmlns?.uniqueDefinitions
 				.map(definition => {
 					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
@@ -175,7 +205,7 @@ const registerCompletionProvider = (
 		// Find component attributes
 		else {
 			const componentInfo: Map<string, string> = getComponentInfomation(document, position);
-			const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ? "<" + componentInfo.get("xmlnsPrefix") + ":" : "";
+			const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ?? "";
 			const componentName = componentInfo.get("componentName");
 			const attibutes = componentInfo.get("attibutes");
 
@@ -202,7 +232,7 @@ const registerCompletionProvider = (
 						const completionClassName = `${classPrefix}${definition.name}`;
 						completionItem.filterText = completionClassName;
 						completionItem.insertText = completionClassName + "=\"\"";
-						completionItem.detail = "XMLNS: " + xmlns?.dataFilename.toUpperCase();
+						completionItem.detail = `XMLNS: ${xmlns!.dataFilename.toUpperCase()} - ${xmlns!.description}`;
 						return completionItem;
 					});
 
@@ -256,12 +286,10 @@ function aliasFromDocument(document: TextDocument, position: Position): void {
  * @returns 
  */
 function getXmlnsAlias(allText: string, xmlnsTag: string): string {
-	let tag: string = '';
-	let index: number = allText.indexOf(xmlnsTag);
-	tag = allText.substring(0, index);
-	let indexXMLNS: number = tag.lastIndexOf('xmlns:');
-	tag = tag.substring(indexXMLNS + 6, tag.length - 2);
-	return "<" + tag + ":";
+	const index: number = allText.indexOf(xmlnsTag);
+	const tag: string = allText.substring(0, index);
+	const indexXMLNS: number = tag.lastIndexOf('xmlns:');
+	return tag.substring(indexXMLNS + 6, tag.length - 2);
 }
 
 /**
