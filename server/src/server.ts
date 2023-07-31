@@ -3,7 +3,6 @@ import {
 } from 'vscode-languageserver-textdocument';
 import {
     CompletionItem,
-    CompletionItemKind,
     DidChangeConfigurationNotification,
     InitializeParams,
     InitializeResult,
@@ -17,11 +16,12 @@ import {
     createConnection
 } from 'vscode-languageserver/node';
 import DocumentSettings, { ActiveNamespace } from './DocumentSettings';
-import { Resolving } from './types/Resolving';
 import UserSettings from './UserSettings';
 import { Component, JsfLibraryDefinitions } from './model/JsfLibraryDefinitions';
 import { JsfFramework, JsfLibrary } from './types/JsfFramework';
-import path = require('path');
+import { Resolving } from './types/Resolving';
+import { getJsfAttributeDefinition, getJsfElementDefinition, getJsfNsPrefixDefinition } from './utils/CompletionUtils';
+import { join } from 'path';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -197,72 +197,31 @@ connection.onCompletion(
         // Find available namespaces
         if (resolving === Resolving.NsPrefix) {
             return documentSettings.get(documentUri)?.activeNamespaces
-                .map(ans => {
-                    const completionItem = CompletionItem.create(ans.nsPrefix)
-                    completionItem.kind = CompletionItemKind.Property;
-                    completionItem.documentation = ans.xmlNs!.description;
-                    const completionClassName = `${ans.nsPrefix}`;
-                    completionItem.filterText = completionClassName;
-                    completionItem.insertText = completionClassName + ":";
-                    completionItem.detail = `XMLNS: ${ans.xmlNs!.description}:${ans.xmlNs!.version}`;
-                    return completionItem;
-                }) ?? [];
+                .map(getJsfNsPrefixDefinition) ?? [];
         }
         // Find the components
         else if (resolving === Resolving.Element) {
             const xmlns = documentSettings.get(documentUri)?.activeNamespaces.find(ans => ans.nsPrefix === xmlnsPrefix);
             return xmlns?.xmlNs?.components!
-                .map(component => {
-                    const completionItem = CompletionItem.create(component.name);
-                    completionItem.kind = CompletionItemKind.Property;
-                    completionItem.documentation = component.description;
-                    const completionClassName = `${classPrefix}${component.name}`;
-                    completionItem.filterText = completionClassName;
-                    completionItem.insertText = completionClassName;
-                    completionItem.detail = `XMLNS: ${xmlns.xmlNs!.description}:${xmlns.xmlNs!.version}`;
-                    return completionItem;
-                }) ?? [];
+                .map(component => getJsfElementDefinition(xmlns, component)) ?? [];
         }
         // Find component attributes
         else {
             const componentInfo: Map<string, string> = getComponentInfomation(document, position);
             const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ?? "";
             const componentName = componentInfo.get("componentName");
-            const attributes = componentInfo.get("attributes");
+            const existingAttributes = componentInfo.get("attributes")?.split('|') ?? [];
 
             if (xmlnsPrefix !== "") {
                 const xmlns = documentSettings.get(documentUri)?.activeNamespaces.find(ans => ans.nsPrefix === xmlnsPrefix);
-                if (xmlnsPrefix !== "" && xmlns) {
-
-                    const componentItem = xmlns.xmlNs?.components!
-                        .find(definition => definition.name === componentName);
-
-                    if (componentItem === undefined) {
-                        return [];
-                    }
-
-                    let completionItems = componentItem.attribute.map(definition => {
-                        const text: string = `${definition.description}\n`
-                            + `Required: ${definition.required}\n`
-                            + `Type: ${definition.type}\n`;
-                        const completionItem = CompletionItem.create(definition.name);
-                        completionItem.kind = CompletionItemKind.Enum;
-                        completionItem.documentation = text;
-                        const completionClassName = `${classPrefix}${definition.name}`;
-                        completionItem.filterText = completionClassName;
-                        completionItem.insertText = completionClassName + "=\"\"";
-                        completionItem.detail = `XMLNS: ${xmlns.xmlNs!.description}:${xmlns.xmlNs!.version}`;
-                        return completionItem;
-                    });
-
+                return xmlns
+                    ?.xmlNs
+                    ?.components!
+                    .find(definition => definition.name === componentName)
+                    ?.attribute
                     // Removes from the collection the attributes already specified on the component
-                    if (attributes && attributes.length > 0) {
-                        const attributesOnComponent = attributes.split('|');
-                        return completionItems.filter(item => item.filterText && !attributesOnComponent.includes(item.filterText));
-                    } else {
-                        return completionItems;
-                    }
-                }
+                    .filter(definition => !existingAttributes.includes(definition.name))
+                    .map(definition => getJsfAttributeDefinition(xmlns, definition)) ?? [];
             }
         }
         return [];
@@ -441,7 +400,7 @@ function loadElementDefinitions(jsfLibrary: JsfLibrary): Component[] {
     const file = [jsfLibrary.framework, jsfLibrary.extension, jsfLibrary.version]
         .filter(string => string)
         .join("-") + ".json"
-    const dataFilename = path.join(__dirname, "parse-engines", "data", jsfLibrary.framework, file);
+    const dataFilename = join(__dirname, "parse-engines", "data", jsfLibrary.framework, file);
 
     const jsonFile = require(dataFilename) as JsfLibraryDefinitions;
     return jsonFile.components.component;
