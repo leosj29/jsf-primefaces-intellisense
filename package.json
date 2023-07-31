@@ -6,8 +6,16 @@
     "publisher": "leosj29",
     "license": "MIT",
     "engines": {
-        "vscode": "^1.76.0"
+        "vscode": "^1.79.0"
     },
+    "repository": {
+        "url": "https://github.com/leosj29/jsf-primefaces-intellisense"
+    },
+    "workspaces":[
+        "jsf-lsp-client",
+        "jsf-lsp-server"
+    ],
+    "main": "./client/out/extension.js",
     "keywords": [
         "a4j",
         "html",
@@ -34,7 +42,6 @@
         "onLanguage:xhtml",
         "onLanguage:jsfl"
     ],
-    "main": "./out/extension.js",
     "contributes": {
         "commands": [
             {
@@ -58,84 +65,79 @@
                     },
                     "jsf-primefaces-intellisense.primeVersion": {
                         "enum": [
-                            "primefaces-13.0.0",
-                            "primefaces-12.0.0",
-                            "primefaces-11.0.0",
-                            "primefaces-10.0.0",
-                            "primefaces-8.0.0"
+                            "13.0.0",
+                            "12.0.0",
+                            "11.0.0",
+                            "10.0.0",
+                            "8.0.0"
                         ],
-                        "default": "primefaces-13.0.0",
-                        "description": "PrimeFaces Version. (Restart Required)."
+                        "default": "13.0.0",
+                        "description": "PrimeFaces Version."
                     },
                     "jsf-primefaces-intellisense.primeExtVersion": {
                         "enum": [
-                            "primefaces-extensions-13.0.0",
-                            "primefaces-extensions-12.0.6",
-                            "primefaces-extensions-12.0.0",
-                            "primefaces-extensions-11.0.0",
-                            "primefaces-extensions-10.0.0"
+                            "13.0.0",
+                            "12.0.6",
+                            "12.0.0",
+                            "11.0.0",
+                            "10.0.0"
                         ],
-                        "default": "primefaces-extensions-13.0.0",
-                        "description": "PrimeFaces Extensions Version. (Restart Required)."
+                        "default": null,
+                        "description": "PrimeFaces Extensions Version. If not set, the configured PrimeFaces Version is used"
                     },
                     "jsf-primefaces-intellisense.omniVersion": {
                         "enum": [
-                            "omnifaces-4.0",
-                            "omnifaces-3.0"
+                            "4.0",
+                            "3.0"
                         ],
-                        "default": "omnifaces-4.0",
-                        "description": "OmniFaces Version. (Restart Required)."
+                        "default": "4.0",
+                        "description": "OmniFaces Version."
                     },
                     "jsf-primefaces-intellisense.richVersion": {
                         "enum": [
-                            "richfaces-4.5.17"
+                            "4.5.17"
                         ],
-                        "default": "richfaces-4.5.17",
-                        "description": "RichFaces Version. (Restart Required)."
+                        "default": "4.5.17",
+                        "description": "RichFaces Version."
                     },
                     "jsf-primefaces-intellisense.facesVersion": {
                         "enum": [
-                            "jakarta-faces-4.0",
-                            "jakarta-server-faces(2.3 - 3.0)",
-                            "java-server-faces(1.0 - 2.2)"
+                            "4.0",
+                            "legacy"
                         ],
-                        "default": "jakarta-faces-4.0",
-                        "description": "Faces Version. (Restart Required)."
+                        "default": "4.0",
+                        "description": "Faces Version. Legacy is any version pre Jakarta 4.0"
                     }
                 }
             }
         ]
     },
     "icon": "images/icon.png",
-    "repository": {
-        "url": "https://github.com/leosj29/jsf-primefaces-intellisense"
-    },
     "scripts": {
         "vsix": "vsce package",
-        "vscode:prepublish": "yarn run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "yarn run compile && yarn run lint",
-        "lint": "eslint src --ext ts",
+        "vscode:prepublish": "npm run compile",
+        "clean": "cd client && npm run clean && cd ../server && npm run clean && cd ..",
+        "compile": "tsc -b",
+        "watch": "tsc -b -watch",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint ./client/src ./server/src --ext .ts",
+        "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
         "test": "node ./out/test/runTest.js"
-    },
-    "devDependencies": {
-        "@types/glob": "^8.1.0",
-        "@types/lodash": "^4.14.191",
-        "@types/mocha": "^10.0.1",
-        "@types/node": "16.x",
-        "@types/verror": "^1.10.6",
-        "@types/vscode": "^1.76.0",
-        "@typescript-eslint/eslint-plugin": "^5.53.0",
-        "@typescript-eslint/parser": "^5.53.0",
-        "@vscode/test-electron": "^2.2.3",
-        "eslint": "^8.34.0",
-        "glob": "^8.1.0",
-        "mocha": "^10.2.0",
-        "typescript": "^4.9.5"
     },
     "dependencies": {
         "lodash": "^4.17.21",
         "verror": "^1.10.1"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.14.195",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "20.3.3",
+        "@types/verror": "^1.10.6",
+        "@typescript-eslint/eslint-plugin": "^5.61.0",
+        "@typescript-eslint/parser": "^5.61.0",
+        "@vscode/test-electron": "^2.3.3",
+        "eslint": "^8.44.0",
+        "mocha": "^10.2.0",
+        "typescript": "^5.1.6"
     }
 }
