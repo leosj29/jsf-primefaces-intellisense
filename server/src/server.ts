@@ -21,6 +21,7 @@ import { Component, JsfLibraryDefinitions } from './model/JsfLibraryDefinitions'
 import { JsfFramework, JsfLibrary } from './types/JsfFramework';
 import { Resolving } from './types/Resolving';
 import { getJsfAttributeDefinition, getJsfElementDefinition, getJsfNsPrefixDefinition } from './utils/CompletionUtils';
+import { getComponentInformation, getXmlNamespaces } from './utils/DocumentUtils';
 import { join } from 'path';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -131,20 +132,10 @@ documents.onDidOpen(change => {
 async function findNamespaces(textDocument: TextDocument) {
     let settings = await getUserSettings(textDocument.uri);
 
-    const htmlLoc = textDocument.getText().indexOf("<html");
-    if (htmlLoc < 0) {
-        return;
-    }
-    const htmlRang = Range.create(textDocument.positionAt(htmlLoc), textDocument.positionAt(htmlLoc + textDocument.getText().substring(htmlLoc).indexOf(">")));
-    const xmlNs = textDocument.getText(htmlRang)
-        .match(/xmlns:(.*?)\s*=\s*"(.*?)"/g)
-        ?.map(en => {
-            const colIndex = en.indexOf(":");
-            const eqIndex = en.indexOf("=");
-            const nsPrefix = en.substring(colIndex + 1, eqIndex).trim();
-            const url = en.substring(eqIndex + 1).replaceAll('"', '').trim();
-            const xmlNs = getJsfLibrary(url, settings);
-            return {nsPrefix: nsPrefix, url: url, xmlNs: xmlNs} as ActiveNamespace})
+    const xmlNs = getXmlNamespaces(textDocument)
+        .map(ans => {
+            const xmlNs = getJsfLibrary(ans.url, settings);
+            return {xmlNs: xmlNs, ...ans} as ActiveNamespace})
         .filter(ans => ans.xmlNs);
 
     documentSettings.set(textDocument.uri, {activeNamespaces: xmlNs} as DocumentSettings);
@@ -162,7 +153,6 @@ connection.onCompletion(
         // The pass parameter contains the position of the text document in
         // which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
-        const classPrefix = "";
         const documentUri = textDocumentPosition.textDocument.uri;
         const position = textDocumentPosition.position;
         const document = documents.get(documentUri);
@@ -207,7 +197,7 @@ connection.onCompletion(
         }
         // Find component attributes
         else {
-            const componentInfo: Map<string, string> = getComponentInfomation(document, position);
+            const componentInfo: Map<string, string> = getComponentInformation(document, position);
             const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ?? "";
             const componentName = componentInfo.get("componentName");
             const existingAttributes = componentInfo.get("attributes")?.split('|') ?? [];
@@ -236,7 +226,7 @@ function getJsfLibrary(url: string, userSettings: UserSettings): JsfLibrary | un
         if (jsfLibrary) {
             jsfLibraryCache.set(url, jsfLibrary);
         } else {
-            notify(Status.error, `URL ${url} is not supported`);
+            notify(Status.ERROR, `URL ${url} is not supported`);
             return;
         }
     }
@@ -407,9 +397,9 @@ function loadElementDefinitions(jsfLibrary: JsfLibrary): Component[] {
 }
 
 enum Status {
-    ok = 1,
-    warn = 2,
-    error = 3
+    OK = 1,
+    WARN = 2,
+    ERROR = 3
 }
 
 interface StatusParams {
@@ -425,81 +415,6 @@ namespace StatusNotification {
 
 function notify(state: Status, message: string): void {
     connection.sendNotification(StatusNotification.type, {message: message, state: state });
-}
-
-/**
- * Gets the name of the component, the attribute and 
- * possible attributes already used in it.
- * 
- * @param document 
- * @param position 
- * @returns 
- */
-function getComponentInfomation(document: TextDocument, position: Position): Map<string, string> {
-    const componentInfo = new Map<string, string>();
-    const start: Position = Position.create(0, 0);
-    const range: Range = Range.create(start, position);
-    const allText: string = document.getText(range);
-    let lastC: number = allText.lastIndexOf('<');
-    let text: string = allText.substring(lastC);
-
-    let blank_ = text.indexOf(" ");
-    let break_ = text.indexOf("\n");
-    let delimiter: number = -1;
-    if (blank_ < break_) {
-        delimiter = blank_ > -1 ? blank_ : break_;
-    }
-    else if (break_ < blank_) {
-        delimiter = break_ > -1 ? break_ : blank_;
-    }
-    text = text.substring(0, delimiter);
-    text = text.replace("<", "");
-    if (text.includes(":")) {
-        let div = text.split(':');
-        componentInfo.set("xmlnsPrefix", div[0]);
-        componentInfo.set("componentName", div[1].trim());
-
-        lastC = allText.lastIndexOf('<' + div[0] + ':' + div[1]);
-        text = allText.substring(lastC);
-
-        if (inAttribute(text)) {
-            return new Map<string, string>();
-        }
-        if (text.includes('>')) {
-            return new Map<string, string>();
-        }
-        let index: number;
-        const rExp: RegExp = /(\w+=(["'])([^"|']*)(["']))/g;
-        const rawClasses: RegExpMatchArray | null = text.match(rExp);
-        const attributes = (rawClasses && rawClasses.length > 0)
-            ? rawClasses?.map(item => item.split('=')[0])
-                .filter(item => item.length > 0)
-                .join("|")
-            : '';
-        componentInfo.set("attributes", attributes);
-    }
-    return componentInfo;
-}
-
-/**
- * Determines if I am positioned on an attribute.
- * 
- * @param text 
- * @returns 
- */
-function inAttribute(text: string): boolean {
-    let character: string = '';
-    let index: number = text.lastIndexOf('\"');
-    if (index === -1) {
-        index = text.lastIndexOf('\'');
-    }
-    if (index !== -1) {
-        character = text.substring(index - 1, index);
-        if (character === '=') {
-            return true;
-        }
-    }
-    return false;
 }
 
 // This handler resolves additional information for the item selected in
