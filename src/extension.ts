@@ -46,59 +46,69 @@ const supportedXmlNamespaces: XmlNamespace[] = [
 		id: "a4j",
 		urls: ["http://richfaces.org/a4j"],
 		dataFilename: richFacesSubTag("a4j"),
+		description: "Richfaces - Ajax4Jsf",
 		uniqueDefinitions: []
 	}, {
 		id: "r",
 		urls: ["http://richfaces.org/rich"],
 		dataFilename: richFacesSubTag("richfaces"),
+		description: "Richfaces",
 		uniqueDefinitions: []
 	},
 	{
 		id: "o",
 		urls: ["http://omnifaces.org/ui"],
 		dataFilename: workspace.getConfiguration().get<string>(Configuration.omniVersion) ?? "",
+		description: "Omnifaces",
 		uniqueDefinitions: []
 	},
 	{
 		id: "p",
 		urls: ["http://primefaces.org/ui"],
 		dataFilename: workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? "",
+		description: "Primefaces",
 		uniqueDefinitions: []
 	},
 	{
 		id: "pe",
 		urls: ["http://primefaces.org/ui/extensions"],
 		dataFilename: workspace.getConfiguration().get<string>(Configuration.primeExtVersion) ?? "",
+		description: "Primefaces Extention",
 		uniqueDefinitions: []
 	},
 	{
 		id: "c",
 		urls: !isJakartaVersion() ? ["http://xmlns.jcp.org/jsp/jstl/core"] : ["jakarta.tags.core"],
 		dataFilename: 'c',
+		description: "JSF Tags Core",
 		uniqueDefinitions: []
 	},
 	{
 		id: "cc",
 		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/composite", "http://xmlns.jcp.org/jsf/composite"] : ["jakarta.faces.composite"],
 		dataFilename: 'cc',
+		description: "JSF Composite",
 		uniqueDefinitions: []
 	},
 	{
 		id: "f",
 		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/core", "http://xmlns.jcp.org/jsf/core"] : ["jakarta.faces.core"],
 		dataFilename: 'f',
+		description: "JSF Faces Core",
 		uniqueDefinitions: []
 	},
 	{
 		id: "h",
 		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/html", "http://xmlns.jcp.org/jsf/html"] : ["jakarta.faces.html"],
 		dataFilename: 'h',
+		description: "JSF Faces HTML",
 		uniqueDefinitions: []
 	},
 	{
 		id: "ui",
 		urls: !isJakartaVersion() ? ["http://java.sun.com/jsf/facelets", "http://xmlns.jcp.org/jsf/facelets"] : ["jakarta.faces.facelets"],
 		dataFilename: 'ui',
+		description: "JSF Facelets",
 		uniqueDefinitions: []
 	}
 ];
@@ -151,19 +161,16 @@ const registerCompletionProvider = (
 		let xmlns = supportedXmlNamespaces.find(xmlns => xmlns.aliasInDoc === xmlnsPrefix);
 
 		// Find the components
-		if (xmlnsPrefix !== "" && xmlns) {
-			return xmlns.uniqueDefinitions
-				.filter((definition) =>
-					autoSearch === '' || definition.component.name.startsWith(autoSearch))
-				.map((definition) => {
+			return xmlns?.uniqueDefinitions
+				.map(definition => {
 					const completionItem = new CompletionItem(definition.component.name, CompletionItemKind.Property);
 					completionItem.documentation = definition.component.description;
 					const completionClassName = `${classPrefix}${definition.component.name}`;
 					completionItem.filterText = completionClassName;
 					completionItem.insertText = completionClassName;
-					completionItem.detail = "XMLNS: " + xmlns?.dataFilename.toUpperCase();
+					completionItem.detail = `XMLNS: ${xmlns.dataFilename.toUpperCase()} - ${xmlns.description}`;
 					return completionItem;
-				});
+				}) ?? [];
 		}
 		// Find component attributes
 		else {

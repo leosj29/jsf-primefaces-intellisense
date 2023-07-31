@@ -5,6 +5,7 @@ class XmlNamespace {
     aliasInDoc?: string = "";
     urls: string[] = [];
     dataFilename: string = "";
+    description: string = "";
     uniqueDefinitions: ComponentDefinition[] = [];
 }
 
