@@ -206,16 +206,15 @@ const registerCompletionProvider = (
 			const componentInfo: Map<string, string> = getComponentInfomation(document, position);
 			const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ?? "";
 			const componentName = componentInfo.get("componentName");
-			const attibutes = componentInfo.get("attibutes");
+			const attributes = componentInfo.get("attributes");
 
 			if (xmlnsPrefix !== "") {
 				aliasFromDocument(document, position);
 				let xmlns = supportedXmlNamespaces.find(xmlns => xmlns.aliasInDoc === xmlnsPrefix);
 				if (xmlnsPrefix !== "" && xmlns) {
 
-					let componentItem = xmlns.uniqueDefinitions
-						.filter(definition => definition.component.name === componentName)
-						.find(() => true);
+					const componentItem = xmlns.uniqueDefinitions
+						.find(definition => definition.component.name === componentName);
 
 					if (componentItem === undefined) {
 						return [];
@@ -234,18 +233,13 @@ const registerCompletionProvider = (
 						return completionItem;
 					});
 
-					if (attibutes && attibutes.length > 0) {
-						const attributesOnComponent = attibutes.split('|');
-						// Removes from the collection the attributes already specified on the component
-						for (const attributeOnComponent of attributesOnComponent) {
-							for (let j = 0; j < completionItems.length; j++) {
-								if (completionItems[j].insertText === attributeOnComponent + "=\"\"") {
-									completionItems.splice(j, 1);
-								}
-							}
-						}
+					// Removes from the collection the attributes already specified on the component
+					if (attributes && attributes.length > 0) {
+						const attributesOnComponent = attributes.split('|');
+						return completionItems.filter(item => item.filterText && !attributesOnComponent.includes(item.filterText));
+					} else {
+						return completionItems;
 					}
-					return completionItems;
 				}
 			}
 		}
