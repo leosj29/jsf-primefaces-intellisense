@@ -27,13 +27,13 @@ class ParseEngineRegistry {
     }
 
     public static richFacesSubTag = (subtag: string): IParseEngine => {
-        const rich: string = workspace.getConfiguration().get<string>(Configuration.richVersion) || '';
+        const rich: string = workspace.getConfiguration().get<string>(Configuration.richVersion) ?? '';
         const vers = rich.substring(rich.lastIndexOf('-'));
         return new TagLib('richfaces', `${subtag}${vers}`);
     }
 
     public static facesSubTag = (subtag: string): IParseEngine => {
-        const faces: string = workspace.getConfiguration().get<string>(Configuration.facesVersion) || '';
+        const faces: string = workspace.getConfiguration().get<string>(Configuration.facesVersion) ?? '';
         if (faces === "java-server-faces(1.0 - 2.2)" || faces === "jakarta-server-faces(2.3 - 3.0)") {
             return new TagLib('jsf', `${subtag}`);
         }
@@ -50,9 +50,9 @@ class ParseEngineRegistry {
         ParseEngineRegistry.facesSubTag('c'),
         ParseEngineRegistry.facesSubTag('cc'),
         ParseEngineRegistry.facesSubTag('ui'),
-        new TagLib('primefaces', workspace.getConfiguration().get<string>(Configuration.primeVersion) || ''),
-        new TagLib('primefaces', workspace.getConfiguration().get<string>(Configuration.primeExtVersion) || ''),
-        new TagLib('omnifaces', workspace.getConfiguration().get<string>(Configuration.omniVersion) || ''),
+        new TagLib('primefaces', workspace.getConfiguration().get<string>(Configuration.primeVersion) ?? ''),
+        new TagLib('primefaces', workspace.getConfiguration().get<string>(Configuration.primeExtVersion) ?? ''),
+        new TagLib('omnifaces', workspace.getConfiguration().get<string>(Configuration.omniVersion) ?? ''),
         ParseEngineRegistry.richFacesSubTag('a4j'),
         ParseEngineRegistry.richFacesSubTag('richfaces'),
     ];

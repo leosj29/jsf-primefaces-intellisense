@@ -28,7 +28,7 @@ let caching = false;
 const htmlDisposables: Disposable[] = [];
 
 const isJakartaVersion = (): boolean => {
-	const faces: string = workspace.getConfiguration().get<string>(Configuration.facesVersion) || '';
+	const faces: string = workspace.getConfiguration().get<string>(Configuration.facesVersion) ?? '';
 	if (faces === "java-server-faces(1.0 - 2.2)" || faces === "jakarta-server-faces(2.3 - 3.0)") {
 		return false;
 	}
@@ -36,7 +36,7 @@ const isJakartaVersion = (): boolean => {
 }
 
 const richFacesSubTag = (subtag: string): string => {
-	const rich: string = workspace.getConfiguration().get<string>(Configuration.richVersion) || '';
+	const rich: string = workspace.getConfiguration().get<string>(Configuration.richVersion) ?? '';
 	const vers = rich.substring(rich.lastIndexOf('-'));
 	return `${subtag}${vers}`;
 }
