@@ -149,9 +149,8 @@ const registerCompletionProvider = (
 	provideCompletionItems(document: TextDocument, position: Position): CompletionItem[] {
 		const start: Position = new Position(position.line, 0);
 		const range: Range = new Range(start, position);
-		const text: string = document.getText(range);
+		const trimmedText = document.getText(range).trimStart();
 		let resolving: Resolving;
-		const trimmedText = text.trimStart();
 		let xmlnsPrefix: string;
 
 		if (trimmedText.startsWith("<")) {
@@ -223,10 +222,9 @@ const registerCompletionProvider = (
 					}
 
 					let completionItems = componentItem.component.attributes.map(definition => {
-						let text: string = '';
-						text = text + definition.description + "\n";
-						text = text + "Required: " + definition.required + "\n";
-						text = text + "Type: " + definition.type + "\n";
+						const text: string = `${definition.description}\n`
+							+ `Required: ${definition.required}\n`
+							+ `Type: ${definition.type}\n`;
 						const completionItem = new CompletionItem(definition.name, CompletionItemKind.Enum);
 						completionItem.documentation = text;
 						const completionClassName = `${classPrefix}${definition.name}`;
@@ -265,8 +263,7 @@ const registerCompletionProvider = (
 function aliasFromDocument(document: TextDocument, position: Position): void {
 	let start: Position = new Position(0, 0);
 	let range: Range = new Range(start, position);
-	let allText: string = document.getText(range);
-	allText = allText.toLowerCase();
+	let allText = document.getText(range).toLowerCase();
 	supportedXmlNamespaces.forEach(xmlns => {
 		xmlns.aliasInDoc = "";
 		xmlns.urls.forEach(url => {
@@ -333,13 +330,12 @@ function loadAllXmlnsContent(xmlns: XmlNamespace): void {
  * @returns 
  */
 function getComponentInfomation(document: TextDocument, position: Position): Map<string, string> {
-	let componentInfo = new Map<string, string>();
-	let text: string = '';
-	let start: Position = new Position(0, 0);
-	let range: Range = new Range(start, position);
-	let allText: string = document.getText(range);
+	const componentInfo = new Map<string, string>();
+	const start: Position = new Position(0, 0);
+	const range: Range = new Range(start, position);
+	const allText: string = document.getText(range);
 	let lastC: number = allText.lastIndexOf('<');
-	text = allText.substring(lastC);
+	let text: string = allText.substring(lastC);
 
 	let blank_ = text.indexOf(" ");
 	let break_ = text.indexOf("\n");
@@ -357,7 +353,6 @@ function getComponentInfomation(document: TextDocument, position: Position): Map
 		componentInfo.set("xmlnsPrefix", div[0]);
 		componentInfo.set("componentName", div[1]);
 
-		let attibutes: string = '';
 		lastC = allText.lastIndexOf('<' + div[0] + ':' + div[1]);
 		text = allText.substring(lastC);
 
@@ -368,16 +363,14 @@ function getComponentInfomation(document: TextDocument, position: Position): Map
 			return new Map<string, string>();
 		}
 		let index: number;
-		const rExp: RegExp = /(\w+=(\"|\')([^"|\']*)(\"|\'))/g;
-		let rawClasses: RegExpMatchArray | null = text.match(rExp);
-		if (rawClasses && rawClasses.length > 0) {
-			rawClasses?.forEach(item => {
-				index = item.indexOf('=');
-				item = item.substring(0, index);
-				attibutes = attibutes + ((attibutes !== '') ? '|' : '') + item;
-			});
-		}
-		componentInfo.set("attibutes", attibutes);
+		const rExp: RegExp = /(\w+=(["'])([^"|']*)(["']))/g;
+		const rawClasses: RegExpMatchArray | null = text.match(rExp);
+		const attributes = (rawClasses && rawClasses.length > 0)
+			? rawClasses?.map(item => item.split('=')[0])
+				.filter(item => item.length > 0)
+				.join("|")
+			: '';
+		componentInfo.set("attributes", attributes);
 	}
 	return componentInfo;
 }
