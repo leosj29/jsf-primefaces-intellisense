@@ -23,7 +23,7 @@ enum Configuration {
 }
 
 const notifier: Notifier = new Notifier(Command.cache);
-const completionTriggerChars = ['"', "'", " ", "."];
+const completionTriggerChars = ['"', "'", " ", ".", ":"];
 let caching = false;
 const htmlDisposables: Disposable[] = [];
 
