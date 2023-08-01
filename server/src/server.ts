@@ -1,9 +1,12 @@
+import { join } from 'path';
 import {
     TextDocument
 } from 'vscode-languageserver-textdocument';
 import {
     CompletionItem,
     DidChangeConfigurationNotification,
+    Hover,
+    HoverParams,
     InitializeParams,
     InitializeResult,
     NotificationType,
@@ -22,7 +25,8 @@ import { JsfFramework, JsfLibrary } from './types/JsfFramework';
 import { Resolving } from './types/Resolving';
 import { getJsfAttributeDefinition, getJsfElementDefinition, getJsfNsPrefixDefinition } from './utils/CompletionUtils';
 import { getComponentInformation, getXmlNamespaces } from './utils/DocumentUtils';
-import { join } from 'path';
+import { getJsfAttributeHover, getJsfElementHover, getJsfNsPrefixHover } from './utils/HooverUtils';
+import { substringAfterLast, substringBeforeFirst } from './utils/StringUtils';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -51,7 +55,9 @@ connection.onInitialize((params: InitializeParams) => {
             completionProvider: {
                 resolveProvider: true,
                 triggerCharacters: ['"', "'", " ", ".", ":"]
-            }
+            },
+            // Enables Hover Support
+            hoverProvider: true
         }
     };
     if (hasWorkspaceFolderCapability) {
@@ -147,6 +153,91 @@ connection.onDidChangeWatchedFiles(change => {
     connection.console.log('We received an file change event');
 });
 
+connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
+        const documentUri = hoverParams.textDocument.uri;
+        const hoverPosition = hoverParams.position;
+        const document = documents.get(documentUri);
+
+        if (!document) {
+            return null;
+        }
+
+        const [textBeforeHover, indexBeforeElement] = substringAfterLast(
+            document.getText(Range.create(Position.create(hoverPosition.line, 0), hoverPosition)),
+            "\t", " ", "\"", "<", "</", ":");
+
+        const [textAfterHover, indexAfterElement] = substringBeforeFirst(
+            document.getText(Range.create(hoverPosition, Position.create(hoverPosition.line, Number.MAX_VALUE))),
+            " ", "=", ">", "/>", ":");
+        const hoverText = textBeforeHover + textAfterHover;
+
+        let searchRangeAfterElement = Range.create(
+            Position.create(hoverPosition.line, hoverPosition.character + indexAfterElement),
+            Position.create(hoverPosition.line, Number.MAX_VALUE));
+        let textAfterElement = document.getText(searchRangeAfterElement);
+
+        let searchRangeBeforeElement = Range.create(
+            Position.create(hoverPosition.line, 0), Position.create(hoverPosition.line, indexBeforeElement));
+        let textBeforeElement = document.getText(searchRangeBeforeElement);
+        // Find start of Tag
+        while (textBeforeElement.lastIndexOf("<") <= -1) {
+            searchRangeBeforeElement = Range.create(
+                Position.create(searchRangeBeforeElement.start.line - 1, 0),
+                Position.create(hoverPosition.line, indexBeforeElement));
+            if (searchRangeBeforeElement.start.line < 0) {
+                return null;
+            }
+            textBeforeElement = document.getText(searchRangeBeforeElement);
+        }
+
+        //Hover Element
+        if (/<\/?\w+:$/.test(textBeforeElement)) {
+            let nsPrefix = textBeforeElement.substring(
+                textBeforeElement.lastIndexOf("<") + 1, textBeforeElement.lastIndexOf(":"));
+            if (nsPrefix.startsWith("/")) {
+                nsPrefix = nsPrefix.substring(1);
+            }
+            const component = documentSettings.get(documentUri)
+                ?.activeNamespaces
+                ?.find(namespace => namespace.nsPrefix === nsPrefix)
+                ?.xmlNs
+                ?.components
+                ?.find(component => component.name === hoverText);
+            return component
+                ? getJsfElementHover(component)
+                : null;
+        //Hover Attribute
+        } else if (RegExp(/\s$/).exec(textBeforeElement)) {
+            const match = RegExp(/<(\w+):(\w+)\s.*/).exec(textBeforeElement);
+            if (match?.length !== 3) {
+                return null;
+            } else {
+                const attribute = documentSettings.get(documentUri)
+                    ?.activeNamespaces
+                    ?.find(namespace => namespace.nsPrefix === match[1])
+                    ?.xmlNs
+                    ?.components
+                    ?.find(component => component.name === match[2])
+                    ?.attribute
+                    .find(attribute => attribute.name === hoverText);
+                return attribute
+                    ? getJsfAttributeHover(attribute)
+                    : null;
+            }
+        //Hover XML Namespace Prefix
+        } else if (/<\/?$/.test(textBeforeElement) && textAfterElement.startsWith(":")) {
+            const namespace = documentSettings.get(documentUri)
+                ?.activeNamespaces
+                ?.find(namespace => namespace.nsPrefix === hoverText);
+            return namespace?.xmlNs
+                ? getJsfNsPrefixHover(namespace.xmlNs)
+                : null;
+        } else {
+            return null;
+        }
+    }
+);
+
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
     (textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
@@ -196,7 +287,7 @@ connection.onCompletion(
                 .map(component => getJsfElementDefinition(xmlns, component)) ?? [];
         }
         // Find component attributes
-        else {
+        else if (resolving === Resolving.Attribute) {
             const componentInfo: Map<string, string> = getComponentInformation(document, position);
             const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ?? "";
             const componentName = componentInfo.get("componentName");
