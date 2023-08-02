@@ -866,6 +866,7 @@
           {
             "name": "border",
             "required": false,
+            "deprecated": true,
             "type": "javax.el.ValueExpression\n(must evaluate to java.lang.String)",
             "description": "Deprecated. This attribute specifies the width of an IMG or OBJECT border, in pixels. The default value for this attribute depends on the user agent"
           },
@@ -1010,6 +1011,7 @@
           {
             "name": "align",
             "required": false,
+            "deprecated": true,
             "type": "javax.el.ValueExpression\n(must evaluate to java.lang.String)",
             "description": "Deprecated. This attribute specifies the position of an IMG, OBJECT, or APPLET with respect to its context. The possible values are \"bottom\", \"middle\", \"top\", \"left\" and \"right\". The default value is \"middle\"."
           },
@@ -1064,6 +1066,7 @@
           {
             "name": "hspace",
             "required": false,
+            "deprecated": true,
             "type": "javax.el.ValueExpression\n(must evaluate to java.lang.String)",
             "description": "Deprecated. This attribute specifies the amount of white space to be inserted to the left and right of an IMG, APPLET, or OBJECT. The default value is not specified, but is generally a small, non-zero length"
           },
@@ -1160,6 +1163,7 @@
           {
             "name": "vspace",
             "required": false,
+            "deprecated": true,
             "type": "javax.el.ValueExpression\n(must evaluate to java.lang.String)",
             "description": "Deprecated. This attribute specifies the amount of white space to be inserted above and below an IMG, APPLET, or OBJECT. The default value is not specified, but is generally a small, non-zero length"
           }

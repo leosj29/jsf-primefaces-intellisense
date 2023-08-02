@@ -1,4 +1,4 @@
-import { CompletionItem, CompletionItemKind, InsertTextFormat, MarkupKind } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, CompletionItemTag, InsertTextFormat, MarkupKind } from 'vscode-languageserver';
 import { ActiveNamespace } from '../DocumentSettings';
 import { Attribute, Component } from '../model/JsfLibraryDefinitions';
 
@@ -24,6 +24,7 @@ export function getJsfElementCompletion(namespace: ActiveNamespace, component: C
     return {
         label: component.name,
         kind: CompletionItemKind.Property,
+        tags: getTags(component.deprecated),
         documentation: component.description,
         filterText: component.name,
         insertText: `${component.name} \${1:${getRequiredAttributes(component)}}`,
@@ -40,6 +41,7 @@ export function getJsfAttributeCompletion(namespace: ActiveNamespace, attribute:
     return {
         label: attribute.name,
         kind: CompletionItemKind.Enum,
+        tags: getTags(attribute.deprecated),
         documentation: {
             kind: MarkupKind.Markdown,
             value: documentation
@@ -54,4 +56,10 @@ function getRequiredAttributes(component: Component): string {
     return component.attribute.filter(attribute => attribute.required)
         .map(attribute => `${attribute.name}=""`)
         .join(" ")
+}
+
+function getTags(deprecated: boolean): CompletionItemTag[] | null {
+    return deprecated
+        ? [CompletionItemTag.Deprecated]
+        : null;
 }

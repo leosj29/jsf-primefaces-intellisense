@@ -15212,6 +15212,7 @@
             "description": "Deprecated, use columnHeaderFormat instead. Format for column headers.",
             "name": "columnFormat",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.String"
           },
           {
@@ -19544,6 +19545,7 @@
             "description": "Deprecated, use orientationAxis instead of this. If false, the horizontal axis is drawn at the bottom. If true, the axis is drawn on top. Default is false.",
             "name": "axisOnTop",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.Boolean"
           },
           {
@@ -19688,6 +19690,7 @@
             "description": "Deprecated, use editableGroup property instead.",
             "name": "groupsChangeable",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.Boolean"
           },
           {
@@ -19706,6 +19709,7 @@
             "description": "Deprecated, use snap property instead. If true, the start and end of an event will be snapped nice integer values when moving or resizing the event. Default is true.",
             "name": "snapEvents",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.Boolean"
           },
           {
@@ -19742,6 +19746,7 @@
             "description": "Deprecated, use editableTime property instead. If false, items can not be moved or dragged horizontally (neither start time nor end time is changable). This is useful when items should be editable but can only be changed regarding group or content (typical use case: scheduling events). Default is true.",
             "name": "timeChangeable",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.Boolean"
           },
           {

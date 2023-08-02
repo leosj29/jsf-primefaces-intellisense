@@ -2,19 +2,21 @@ export type JsfLibraryDefinitions = {
     components: Components
 }
 
-export interface Components {
+export type Components = {
     component: Component[];
 }
 
-export interface Component {
+export type Component = {
     name:        string;
     description: string;
+    deprecated:  boolean;
     attribute:   Attribute[];
 }
 
-export interface Attribute {
+export type Attribute = {
     name:        string;
     required:    boolean;
     type:        string;
     description: string;
+    deprecated:  boolean;
 }

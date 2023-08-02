@@ -16443,6 +16443,7 @@
             "description": "Deprecated, use columnHeaderFormat instead. Format for column headers.",
             "name": "columnFormat",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.String"
           },
           {
@@ -21099,6 +21100,7 @@
             "description": "Deprecated, use editableTime property instead. If false, items can not be moved or dragged horizontally (neither start time nor end time is changable). This is useful when items should be editable but can only be changed regarding group or content (typical use case: scheduling events). Default is true.",
             "name": "timeChangeable",
             "required": false,
+            "deprecated": true,
             "type": "java.lang.Boolean"
           },
           {
