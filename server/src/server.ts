@@ -22,9 +22,8 @@ import DocumentSettings, { ActiveNamespace } from './DocumentSettings';
 import UserSettings from './UserSettings';
 import { Component, JsfLibraryDefinitions } from './model/JsfLibraryDefinitions';
 import { JsfFramework, JsfLibrary } from './types/JsfFramework';
-import { Resolving } from './types/Resolving';
-import { getJsfAttributeDefinition, getJsfElementDefinition, getJsfNsPrefixDefinition } from './utils/CompletionUtils';
-import { getComponentInformation, getXmlNamespaces } from './utils/DocumentUtils';
+import { getJsfAttributeCompletion, getJsfElementCompletion, getJsfNsPrefixCompletion } from './utils/CompletionUtils';
+import { getAttributesInTag, getTagTextBeforPosition, getXmlNamespaces } from './utils/DocumentUtils';
 import { getJsfAttributeHover, getJsfElementHover, getJsfNsPrefixHover } from './utils/HooverUtils';
 import { substringAfterLast, substringBeforeFirst } from './utils/StringUtils';
 
@@ -153,6 +152,7 @@ connection.onDidChangeWatchedFiles(change => {
     connection.console.log('We received an file change event');
 });
 
+// Handler providing hover information avout element
 connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
         const documentUri = hoverParams.textDocument.uri;
         const hoverPosition = hoverParams.position;
@@ -171,27 +171,19 @@ connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
             " ", "=", ">", "/>", ":");
         const hoverText = textBeforeHover + textAfterHover;
 
-        let searchRangeAfterElement = Range.create(
+        const searchRangeAfterElement = Range.create(
             Position.create(hoverPosition.line, hoverPosition.character + indexAfterElement),
             Position.create(hoverPosition.line, Number.MAX_VALUE));
-        let textAfterElement = document.getText(searchRangeAfterElement);
+        const textAfterElement = document.getText(searchRangeAfterElement);
 
-        let searchRangeBeforeElement = Range.create(
+        const searchRangeBeforeElement = Range.create(
             Position.create(hoverPosition.line, 0), Position.create(hoverPosition.line, indexBeforeElement));
-        let textBeforeElement = document.getText(searchRangeBeforeElement);
-        // Find start of Tag
-        while (textBeforeElement.lastIndexOf("<") <= -1) {
-            searchRangeBeforeElement = Range.create(
-                Position.create(searchRangeBeforeElement.start.line - 1, 0),
-                Position.create(hoverPosition.line, indexBeforeElement));
-            if (searchRangeBeforeElement.start.line < 0) {
-                return null;
-            }
-            textBeforeElement = document.getText(searchRangeBeforeElement);
-        }
+        const textBeforeElement = getTagTextBeforPosition(document, searchRangeBeforeElement);
 
+        if (!textBeforeElement) {
+            return null;
         //Hover Element
-        if (/<\/?\w+:$/.test(textBeforeElement)) {
+        } else if (/<\/?\w+:$/.test(textBeforeElement)) {
             let nsPrefix = textBeforeElement.substring(
                 textBeforeElement.lastIndexOf("<") + 1, textBeforeElement.lastIndexOf(":"));
             if (nsPrefix.startsWith("/")) {
@@ -245,67 +237,63 @@ connection.onCompletion(
         // which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
         const documentUri = textDocumentPosition.textDocument.uri;
-        const position = textDocumentPosition.position;
+        const cursorPosition = textDocumentPosition.position;
         const document = documents.get(documentUri);
-        const start = Position.create(position.line, 0);
-        const range = Range.create(start, position);
+
         if (!document) {
             return [];
         }
-        const trimmedText = document.getText(range).trimStart();
-        let resolving: Resolving;
-        let xmlnsPrefix: string;
 
-        if (trimmedText.startsWith("<")) {
-            let indFirstCol = trimmedText.indexOf(':');
-            if (indFirstCol > -1 && indFirstCol <= trimmedText.length) {
-                xmlnsPrefix = trimmedText.substring(1, indFirstCol);
-                let indFirstSpace = trimmedText.indexOf(' ');
-                if (indFirstSpace > -1 && indFirstSpace <= trimmedText.length) {
-                    resolving = Resolving.Attribute;
-                } else {
-                    resolving = Resolving.Element;
-                }
-                
-            } else {
-                xmlnsPrefix = trimmedText.substring(1);
-                resolving = Resolving.NsPrefix;
+        const [, indexBeforeElement] = substringAfterLast(
+            document.getText(Range.create(Position.create(cursorPosition.line, 0), cursorPosition)),
+            "\t", " ", "\"", "<", "</", ":");
+
+        const searchRangeBeforeElement = Range.create(
+            Position.create(cursorPosition.line, 0), Position.create(cursorPosition.line, indexBeforeElement));
+        const textBeforeElement = getTagTextBeforPosition(document, searchRangeBeforeElement);
+
+        if (!textBeforeElement) {
+            return [];
+        // Completion for Elements
+        } else if (/<\/?\w+:$/.test(textBeforeElement)) {
+            let nsPrefix = textBeforeElement.substring(
+                textBeforeElement.lastIndexOf("<") + 1, textBeforeElement.lastIndexOf(":"));
+            if (nsPrefix.startsWith("/")) {
+                nsPrefix = nsPrefix.substring(1);
             }
-        } else {
-            resolving = Resolving.Attribute;
-        }
 
-        // Find available namespaces
-        if (resolving === Resolving.NsPrefix) {
-            return documentSettings.get(documentUri)?.activeNamespaces
-                .map(getJsfNsPrefixDefinition) ?? [];
-        }
-        // Find the components
-        else if (resolving === Resolving.Element) {
-            const xmlns = documentSettings.get(documentUri)?.activeNamespaces.find(ans => ans.nsPrefix === xmlnsPrefix);
-            return xmlns?.xmlNs?.components!
-                .map(component => getJsfElementDefinition(xmlns, component)) ?? [];
-        }
-        // Find component attributes
-        else if (resolving === Resolving.Attribute) {
-            const componentInfo: Map<string, string> = getComponentInformation(document, position);
-            const xmlnsPrefix = componentInfo.get("xmlnsPrefix") ?? "";
-            const componentName = componentInfo.get("componentName");
-            const existingAttributes = componentInfo.get("attributes")?.split('|') ?? [];
-
-            if (xmlnsPrefix !== "") {
-                const xmlns = documentSettings.get(documentUri)?.activeNamespaces.find(ans => ans.nsPrefix === xmlnsPrefix);
+            const xmlns = documentSettings.get(documentUri)?.activeNamespaces.find(ans => ans.nsPrefix === nsPrefix);
+            return xmlns
+                ?.xmlNs
+                ?.components
+                ?.map(component => getJsfElementCompletion(xmlns, component)) ?? [];
+        // Completion for Attributes
+        } else if (RegExp(/\s$/).exec(textBeforeElement)) {
+            const match = RegExp(/<(\w+):(\w+)\s.*/).exec(textBeforeElement);
+            if (match?.length !== 3) {
+                return [];
+            } else {
+                const existingAttributes = getAttributesInTag(document, cursorPosition);
+                const xmlns = documentSettings.get(documentUri)
+                    ?.activeNamespaces
+                    .find(ans => ans.nsPrefix === match[1]);
                 return xmlns
                     ?.xmlNs
-                    ?.components!
-                    .find(definition => definition.name === componentName)
+                    ?.components
+                    ?.find(definition => definition.name === match[2])
                     ?.attribute
                     // Removes from the collection the attributes already specified on the component
                     .filter(definition => !existingAttributes.includes(definition.name))
-                    .map(definition => getJsfAttributeDefinition(xmlns, definition)) ?? [];
+                    .map(definition => getJsfAttributeCompletion(xmlns, definition)) ?? [];
             }
+        // Completion for XML Namespace Prefix
+        } else if (/<\/?$/.test(textBeforeElement)) {
+            return documentSettings.get(documentUri)
+                ?.activeNamespaces
+                .map(getJsfNsPrefixCompletion) ?? [];
+        } else {
+            return [];
         }
-        return [];
     }
 );
 
@@ -466,7 +454,7 @@ function getSupportedXmlNamespaces(userSettings: UserSettings, url: string): Jsf
                 description: "Jakarta Facelets"
             };
         default:
-            //TODO: Legge til unsupported melding
+            //TODO: Add debug logging of unsupported NS
     }
 }
 

@@ -17,5 +17,3 @@ export enum JsfFramework {
     Primefaces = "primefaces",
     Richfaces = "richfaces"
 }
-
-// enum Jsf

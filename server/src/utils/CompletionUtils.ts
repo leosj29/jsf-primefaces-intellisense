@@ -1,19 +1,26 @@
-import { CompletionItem, CompletionItemKind, InsertTextFormat } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, InsertTextFormat, MarkupKind } from 'vscode-languageserver';
 import { ActiveNamespace } from '../DocumentSettings';
 import { Attribute, Component } from '../model/JsfLibraryDefinitions';
 
-export function getJsfNsPrefixDefinition(namespace: ActiveNamespace): CompletionItem {
+export function getJsfNsPrefixCompletion(namespace: ActiveNamespace): CompletionItem {
+    const documentation = [
+        `${namespace.xmlNs?.description ?? ""}`,
+        `* **URL:** ${namespace.xmlNs?.url ?? ""}`
+    ].join("\n")
     return {
         label: namespace.nsPrefix,
         kind: CompletionItemKind.Property,
-        documentation: namespace.xmlNs!.description,
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: documentation
+        },
         filterText: namespace.nsPrefix,
         insertText: `${namespace.nsPrefix}:`,
         detail: `XMLNS: ${namespace.xmlNs!.description}:${namespace.xmlNs!.version ?? ""}`
     } as CompletionItem;
 }
 
-export function getJsfElementDefinition(namespace: ActiveNamespace, component: Component): CompletionItem {
+export function getJsfElementCompletion(namespace: ActiveNamespace, component: Component): CompletionItem {
     return {
         label: component.name,
         kind: CompletionItemKind.Property,
@@ -25,14 +32,18 @@ export function getJsfElementDefinition(namespace: ActiveNamespace, component: C
     } as CompletionItem;
 }
 
-export function getJsfAttributeDefinition(namespace: ActiveNamespace, attribute: Attribute): CompletionItem {
-    const documentation = `${attribute.description}\n`
-        + `Required: ${attribute.required}\n`
-        + `Type: ${attribute.type}\n`;
+export function getJsfAttributeCompletion(namespace: ActiveNamespace, attribute: Attribute): CompletionItem {
+    const documentation = [
+        `${attribute.description}`,
+        `* **Required:** ${attribute.required}`,
+        `* **Type:** ${attribute.type}`].join("\n");
     return {
         label: attribute.name,
         kind: CompletionItemKind.Enum,
-        documentation: documentation,
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: documentation
+        },
         filterText: attribute.name,
         insertText: `${attribute.name}=""`,
         detail: `XMLNS: ${namespace.xmlNs!.description}:${namespace.xmlNs!.version ?? ""}`

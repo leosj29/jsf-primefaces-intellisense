@@ -77,6 +77,11 @@ export function getComponentInformation(document: TextDocument, position: Positi
     return componentInfo;
 }
 
+
+export function getAttributesInTag(document: TextDocument, position: Position): string[] {
+    return getComponentInformation(document, position).get("attributes")?.split('|') ?? [];
+}
+
 /**
  * Determines if I am positioned on an attribute.
  * 
@@ -96,4 +101,25 @@ export function inAttribute(text: string): boolean {
         }
     }
     return false;
+}
+
+/**
+ * 
+ * @param document 
+ * @param searchRangeBeforeElement 
+ * @returns Text between start of tag (closest "<") and position
+ */
+export function getTagTextBeforPosition(document: TextDocument, searchRangeBeforeElement: Range): string | null {
+    let textBeforeElement = document.getText(searchRangeBeforeElement);
+        // Find start of Tag
+        while (textBeforeElement.lastIndexOf("<") <= -1) {
+            searchRangeBeforeElement = Range.create(
+                Position.create(searchRangeBeforeElement.start.line - 1, 0),
+                searchRangeBeforeElement.end);
+            if (searchRangeBeforeElement.start.line < 0) {
+                return null;
+            }
+            textBeforeElement = document.getText(searchRangeBeforeElement);
+        }
+    return textBeforeElement;
 }
