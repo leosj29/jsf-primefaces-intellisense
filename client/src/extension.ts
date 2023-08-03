@@ -27,10 +27,11 @@ export function activate(context: ExtensionContext) {
         }
     };
 
+    const languages = workspace.getConfiguration().get<string[]>("jsf-primefaces-intellisense.languages");
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
-        // Register the server for HTML documents
-        documentSelector: [{language: "html"}],
+        // Register the server for documents with languages defined in config
+        documentSelector: languages,
         synchronize: {
             // Notify the server about file changes to '.clientrc files contained in the workspace
             fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
