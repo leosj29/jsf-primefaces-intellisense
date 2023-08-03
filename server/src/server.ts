@@ -8,7 +8,6 @@ import {
     HoverParams,
     InitializeParams,
     InitializeResult,
-    NotificationType,
     Position,
     ProposedFeatures,
     Range,
@@ -20,6 +19,7 @@ import {
 import DocumentSettings, { ActiveNamespace } from './DocumentSettings';
 import UserSettings from './UserSettings';
 import { DefinitionCache } from './services/DefinitionCache';
+import { NotificationService } from './services/NotificationService';
 import { getJsfAttributeCompletion, getJsfElementCompletion, getJsfNsPrefixCompletion } from './utils/CompletionUtils';
 import { getAttributesInTag, getTagTextBeforPosition, getXmlNamespaces } from './utils/DocumentUtils';
 import { getJsfAttributeHover, getJsfElementHover, getJsfNsPrefixHover } from './utils/HooverUtils';
@@ -32,6 +32,7 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents = new TextDocuments(TextDocument);
 const definitionCache = new DefinitionCache();
+const notificationService: NotificationService = new NotificationService(connection);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -295,27 +296,6 @@ connection.onCompletion(
         }
     }
 );
-
-enum Status {
-    OK = 1,
-    WARN = 2,
-    ERROR = 3
-}
-
-interface StatusParams {
-    message: string;
-    state: Status;
-}
-
-namespace StatusNotification {
-    export const type = new NotificationType<StatusParams>(
-      'jsf/status'
-    )
-}
-
-function notify(state: Status, message: string): void {
-    connection.sendNotification(StatusNotification.type, {message: message, state: state });
-}
 
 // This handler resolves additional information for the item selected in
 // the completion list.
