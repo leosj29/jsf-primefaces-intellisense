@@ -7,10 +7,11 @@ export type Components = {
 }
 
 export type Component = {
-    name:        string;
-    description: string;
-    deprecated:  boolean;
-    attribute:   Attribute[];
+    name:          string;
+    description:   string;
+    deprecated:    boolean;
+    handlerClass?: string;
+    attribute:     Attribute[];
 }
 
 export type Attribute = {

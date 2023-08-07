@@ -1,10 +1,40 @@
+import { XMLParser } from 'fast-xml-parser';
 import { join } from 'path';
+import { DocumentUri } from 'vscode-languageserver-textdocument';
 import UserSettings from '../UserSettings';
 import { Component, JsfLibraryDefinitions } from '../model/JsfLibraryDefinitions';
 import { JsfFramework, JsfLibrary } from '../types/JsfFramework';
+import { parseTagLibXml } from '../utils/JsfDefinitionUtils';
 
 export class DefinitionCache {
     private jsfLibraryCache: Map<string, JsfLibrary> = new Map();
+    private parser = new XMLParser();
+
+    /**
+     * Index Tag Library Descriptor
+     * @param documentUri Path to taglib.xml file
+     */
+    public addTagLibXml(documentUri: DocumentUri): void {
+        try {
+            const localJsfLiberary = parseTagLibXml(documentUri);
+            this.jsfLibraryCache.set(localJsfLiberary.url, localJsfLiberary);
+        } catch (err) {
+            console.error("Error indexing %s - %s", documentUri, err);
+        }
+    }
+
+        /**
+     * Removing Tag Library Descriptor from index
+     * @param documentUri Path to taglib.xml file
+     */
+    public deleteTagLibXml(documentUri: DocumentUri): void {
+        try {
+            const localJsfLiberary = parseTagLibXml(documentUri);
+            this.jsfLibraryCache.delete(localJsfLiberary.url)
+        } catch (err) {
+            console.error("Error deleting %s from index - %s", documentUri, err);
+        }
+    }
 
     public getJsfLibrary(url: string, userSettings: UserSettings): JsfLibrary | undefined {
         if (!this.jsfLibraryCache.has(url)) {
@@ -20,7 +50,9 @@ export class DefinitionCache {
     }
     
     private loadJsfElements(jsfLibrary: JsfLibrary): JsfLibrary {
-        if (!jsfLibrary.components || jsfLibrary.components.length === 0) {
+        if (!jsfLibrary.definitionUri
+            && (!jsfLibrary.components || jsfLibrary.components.length === 0)
+        ) {
             jsfLibrary.components = this.loadElementDefinitions(jsfLibrary);
         }
         return jsfLibrary;
@@ -46,7 +78,6 @@ export class DefinitionCache {
         switch (url) {
             case "http://richfaces.org/a4j":
                 return {
-                    id: "a4j",
                     url: url,
                     framework: JsfFramework.Richfaces,
                     extension: "a4j",
@@ -55,7 +86,6 @@ export class DefinitionCache {
                 };
             case "http://richfaces.org/rich":
                 return {
-                    id: "r",
                     url: url,
                     version: userSettings.richVersion,
                     framework: JsfFramework.Richfaces,
@@ -63,7 +93,6 @@ export class DefinitionCache {
                 };
             case "http://omnifaces.org/ui":
                 return {
-                    id: "o",
                     url: url,
                     version: userSettings.omniVersion,
                     framework: JsfFramework.Omnifaces,
@@ -71,7 +100,6 @@ export class DefinitionCache {
                 };
             case "http://primefaces.org/ui":
                 return {
-                    id: "p",
                     url: url,
                     version: userSettings.primeVersion,
                     framework: JsfFramework.Primefaces,
@@ -79,7 +107,6 @@ export class DefinitionCache {
                 };
             case "http://primefaces.org/ui/extensions":
                 return {
-                    id: "pe",
                     url: url,
                     framework: JsfFramework.Primefaces,
                     extension: "extensions",
@@ -89,7 +116,6 @@ export class DefinitionCache {
             case "http://java.sun.com/jsf/":
             case "http://xmlns.jcp.org/jsp/jstl/core":
                 return {
-                    id: "c",
                     url: url,
                     framework: JsfFramework.Jsf,
                     extension: "c",
@@ -97,7 +123,6 @@ export class DefinitionCache {
                 };
             case "jakarta.tags.core":
                 return {
-                    id: "c",
                     url: url,
                     framework: JsfFramework.Jakarta,
                     extension: "c",
@@ -107,7 +132,6 @@ export class DefinitionCache {
             case "http://java.sun.com/jsf/composite":
             case "http://xmlns.jcp.org/jsf/composite":
                 return {
-                    id: "cc",
                     url: url,
                     framework: JsfFramework.Jsf,
                     extension: "cc",
@@ -115,7 +139,6 @@ export class DefinitionCache {
                 };
             case "jakarta.faces.composite":
                 return {
-                    id: "cc",
                     url: url,
                     framework: JsfFramework.Jakarta,
                     extension: "cc",
@@ -125,7 +148,6 @@ export class DefinitionCache {
             case "http://java.sun.com/jsf/core":
             case "http://xmlns.jcp.org/jsf/core":
                 return {
-                    id: "f",
                     url: url,
                     framework: JsfFramework.Jsf,
                     extension: "f",
@@ -133,7 +155,6 @@ export class DefinitionCache {
                 };
             case "jakarta.faces.core":
                 return {
-                    id: "f",
                     url: url,
                     framework: JsfFramework.Jakarta,
                     extension: "f",
@@ -143,7 +164,6 @@ export class DefinitionCache {
             case "http://java.sun.com/jsf/html":
             case "http://xmlns.jcp.org/jsf/html":
                 return {
-                    id: "h",
                     url: url,
                     framework: JsfFramework.Jsf,
                     extension: "h",
@@ -151,7 +171,6 @@ export class DefinitionCache {
                 };
             case "jakarta.faces.html":
                 return {
-                    id: "h",
                     url: url,
                     framework: JsfFramework.Jakarta,
                     extension: "h",
@@ -161,7 +180,6 @@ export class DefinitionCache {
             case "http://java.sun.com/jsf/facelets":
             case "http://xmlns.jcp.org/jsf/facelets":
                 return {
-                    id: "ui",
                     url: url,
                     framework: JsfFramework.Jsf,
                     extension: "ui",
@@ -169,7 +187,6 @@ export class DefinitionCache {
                 };
             case "jakarta.faces.facelets": 
                 return {
-                    id: "ui",
                     url: url,
                     framework: JsfFramework.Jakarta,
                     extension: "ui",

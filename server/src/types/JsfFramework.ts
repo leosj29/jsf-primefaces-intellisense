@@ -1,12 +1,14 @@
+import { DocumentUri } from 'vscode-languageserver-textdocument';
 import { Component } from '../model/JsfLibraryDefinitions';
 
 export type JsfLibrary = {
-    id: string;
     url: string;
-    framework: JsfFramework;
+    framework: JsfFramework | string;
     extension?: string;
     version?: string;
     description: string;
+    definitionUri?: DocumentUri;
+    compositeLibraryName?: string;
     components?: Component[];
 }
 

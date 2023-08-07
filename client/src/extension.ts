@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { ExtensionContext, workspace } from 'vscode';
 
+import { createConverter } from 'vscode-languageclient/lib/common/codeConverter';
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -28,13 +29,14 @@ export function activate(context: ExtensionContext) {
     };
 
     const languages = workspace.getConfiguration().get<string[]>("jsf-primefaces-intellisense.languages");
+    const tagLibPattern = "**/src/main/resources/META-INF/*.taglib.xml";
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
         // Register the server for documents with languages defined in config
         documentSelector: languages,
         synchronize: {
             // Notify the server about file changes to '.clientrc files contained in the workspace
-            fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+            fileEvents: workspace.createFileSystemWatcher(tagLibPattern)
         }
     };
 
@@ -48,6 +50,11 @@ export function activate(context: ExtensionContext) {
 
     // Start the client. This will also launch the server
     client.start();
+
+    const uriConverter = createConverter();
+    workspace.findFiles(tagLibPattern)
+        .then(files => files.map(file => uriConverter.asUri(file)))
+        .then(files => client.sendNotification("taglib/add", files));
 }
 
 export function deactivate(): Thenable<void> | undefined {

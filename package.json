@@ -11,7 +11,7 @@
     "repository": {
         "url": "https://github.com/leosj29/jsf-primefaces-intellisense"
     },
-    "workspaces":[
+    "workspaces": [
         "jsf-lsp-client",
         "jsf-lsp-server"
     ],
@@ -125,6 +125,7 @@
         "test": "node ./out/test/runTest.js"
     },
     "dependencies": {
+        "fast-xml-parser": "^4.2.7",
         "lodash": "^4.17.21",
         "verror": "^1.10.1"
     },

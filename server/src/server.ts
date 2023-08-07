@@ -1,9 +1,12 @@
 import {
+    DocumentUri,
     TextDocument
 } from 'vscode-languageserver-textdocument';
 import {
     CompletionItem,
     DidChangeConfigurationNotification,
+    DidChangeWatchedFilesParams,
+    FileChangeType,
     Hover,
     HoverParams,
     InitializeParams,
@@ -146,10 +149,24 @@ async function findNamespaces(textDocument: TextDocument) {
     documentSettings.set(textDocument.uri, {activeNamespaces: xmlNs} as DocumentSettings);
 }
 
+// Handler providing indexing of taglib.xml files
+connection.onNotification("taglib/add", (handler: DocumentUri[]) => {
+    handler.forEach(fileUri => definitionCache.addTagLibXml(fileUri));
+})
 
-connection.onDidChangeWatchedFiles(change => {
-    // Monitored files have change in VSCode
-    connection.console.log('We received an file change event');
+connection.onDidChangeWatchedFiles((change: DidChangeWatchedFilesParams): void => {
+    change.changes
+        .forEach(fileEvent => {
+            switch (fileEvent.type) {
+                case FileChangeType.Created:
+                case FileChangeType.Changed:
+                    definitionCache.addTagLibXml(fileEvent.uri)
+                    break;
+                case FileChangeType.Deleted:
+                    definitionCache.deleteTagLibXml(fileEvent.uri);
+                    break;
+            }
+        });
 });
 
 // Handler providing hover information avout element
