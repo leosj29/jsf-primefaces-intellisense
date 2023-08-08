@@ -170,7 +170,8 @@ connection.onDidChangeWatchedFiles((change: DidChangeWatchedFilesParams): void =
 });
 
 // Handler providing hover information avout element
-connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
+connection.onHover(
+    (hoverParams: HoverParams): Hover | undefined | null => {
         const documentUri = hoverParams.textDocument.uri;
         const hoverPosition = hoverParams.position;
         const document = documents.get(documentUri);
@@ -179,25 +180,12 @@ connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
             return null;
         }
 
-        const [textBeforeHover, indexBeforeElement] = substringAfterLast(
-            document.getText(Range.create(Position.create(hoverPosition.line, 0), hoverPosition)),
-            "\t", " ", "\"", "<", "</", ":");
+        const [hoverText, textBeforeElement, textAfterElement] = getTagText(document, hoverPosition);
+        const documentSetting = documentSettings.get(documentUri);
 
-        const [textAfterHover, indexAfterElement] = substringBeforeFirst(
-            document.getText(Range.create(hoverPosition, Position.create(hoverPosition.line, Number.MAX_VALUE))),
-            " ", "=", ">", "/>", ":");
-        const hoverText = textBeforeHover + textAfterHover;
-
-        const searchRangeAfterElement = Range.create(
-            Position.create(hoverPosition.line, hoverPosition.character + indexAfterElement),
-            Position.create(hoverPosition.line, Number.MAX_VALUE));
-        const textAfterElement = document.getText(searchRangeAfterElement);
-
-        const searchRangeBeforeElement = Range.create(
-            Position.create(hoverPosition.line, 0), Position.create(hoverPosition.line, indexBeforeElement));
-        const textBeforeElement = getTagTextBeforPosition(document, searchRangeBeforeElement);
-
-        if (!textBeforeElement) {
+        if (!documentSetting) {
+            return null;
+        } else if (!hoverText) {
             return null;
         //Hover Element
         } else if (/<\/?\w+:$/.test(textBeforeElement)) {
@@ -206,8 +194,8 @@ connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
             if (nsPrefix.startsWith("/")) {
                 nsPrefix = nsPrefix.substring(1);
             }
-            const component = documentSettings.get(documentUri)
-                ?.activeNamespaces
+            const component = documentSetting
+                .activeNamespaces
                 ?.find(namespace => namespace.nsPrefix === nsPrefix)
                 ?.xmlNs
                 ?.components
@@ -221,8 +209,8 @@ connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
             if (match?.length !== 3) {
                 return null;
             } else {
-                const attribute = documentSettings.get(documentUri)
-                    ?.activeNamespaces
+                const attribute = documentSetting
+                    .activeNamespaces
                     ?.find(namespace => namespace.nsPrefix === match[1])
                     ?.xmlNs
                     ?.components
@@ -235,8 +223,8 @@ connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
             }
         //Hover XML Namespace Prefix
         } else if (/<\/?$/.test(textBeforeElement) && textAfterElement.startsWith(":")) {
-            const namespace = documentSettings.get(documentUri)
-                ?.activeNamespaces
+            const namespace = documentSetting
+                .activeNamespaces
                 ?.find(namespace => namespace.nsPrefix === hoverText);
             return namespace?.xmlNs
                 ? getJsfNsPrefixHover(namespace.xmlNs)
@@ -261,13 +249,7 @@ connection.onCompletion(
             return [];
         }
 
-        const [, indexBeforeElement] = substringAfterLast(
-            document.getText(Range.create(Position.create(cursorPosition.line, 0), cursorPosition)),
-            "\t", " ", "\"", "<", "</", ":");
-
-        const searchRangeBeforeElement = Range.create(
-            Position.create(cursorPosition.line, 0), Position.create(cursorPosition.line, indexBeforeElement));
-        const textBeforeElement = getTagTextBeforPosition(document, searchRangeBeforeElement);
+        const [, textBeforeElement] = getStartOfTagText(document, cursorPosition);
 
         if (!textBeforeElement) {
             return [];

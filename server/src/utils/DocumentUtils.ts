@@ -1,6 +1,9 @@
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position, Range } from 'vscode-languageserver';
-import { ActiveNamespace } from '../DocumentSettings';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import DocumentSettings, { ActiveNamespace } from '../DocumentSettings';
+import { substringAfterLast, substringBeforeFirst } from './StringUtils';
+import { Component, Attribute } from '../model/JsfLibraryDefinitions';
+import { JsfLibrary } from '../types/JsfFramework';
 
 /**
  * Extracts XML namespaces configured in the HTML element.
@@ -105,11 +108,51 @@ export function inAttribute(text: string): boolean {
 
 /**
  * 
+ * @param document Finding all text before and after selected position of tag
+ * @param position 
+ * @returns 
+ */
+export function getTagText(document: TextDocument, position: Position ): [string, string, string] {
+    const [textBeforePosition, textBeforeElement] = getStartOfTagText(document, position);
+
+    const [textAfterPosition, indexAfterElement] = substringBeforeFirst(
+        document.getText(Range.create(position, Position.create(position.line, Number.MAX_VALUE))),
+        " ", "=", ">", "/>", ":");
+    const elementText = textBeforePosition + textAfterPosition;
+
+    const searchRangeAfterElement = Range.create(
+        Position.create(position.line, position.character + indexAfterElement),
+        Position.create(position.line, Number.MAX_VALUE));
+    const textAfterElement = document.getText(searchRangeAfterElement);
+
+    return [elementText, textBeforeElement, textAfterElement];
+}
+
+/**
+ * 
+ * @param document Finding all text before selected position of tag
+ * @param position 
+ * @returns 
+ */
+export function getStartOfTagText(document: TextDocument, position: Position ): [string, string] {
+    const [elementText, indexBeforeElement] = substringAfterLast(
+        document.getText(Range.create(Position.create(position.line, 0), position)),
+        "\t", " ", "\"", "<", "</", ":");
+
+    const searchRangeBeforeElement = Range.create(
+        Position.create(position.line, 0), Position.create(position.line, indexBeforeElement));
+    const textBeforeElement = getTagTextBeforPosition(document, searchRangeBeforeElement);
+
+    return [elementText, textBeforeElement];
+}
+
+/**
+ * 
  * @param document 
  * @param searchRangeBeforeElement 
  * @returns Text between start of tag (closest "<") and position
  */
-export function getTagTextBeforPosition(document: TextDocument, searchRangeBeforeElement: Range): string | null {
+export function getTagTextBeforPosition(document: TextDocument, searchRangeBeforeElement: Range): string {
     let textBeforeElement = document.getText(searchRangeBeforeElement);
         // Find start of Tag
         while (textBeforeElement.lastIndexOf("<") <= -1) {
@@ -117,7 +160,7 @@ export function getTagTextBeforPosition(document: TextDocument, searchRangeBefor
                 Position.create(searchRangeBeforeElement.start.line - 1, 0),
                 searchRangeBeforeElement.end);
             if (searchRangeBeforeElement.start.line < 0) {
-                return null;
+                return "";
             }
             textBeforeElement = document.getText(searchRangeBeforeElement);
         }
