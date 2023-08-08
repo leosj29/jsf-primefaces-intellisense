@@ -227,7 +227,7 @@ connection.onHover((hoverParams: HoverParams): Hover | undefined | null => {
                     ?.xmlNs
                     ?.components
                     ?.find(component => component.name === match[2])
-                    ?.attribute
+                    ?.attributes
                     .find(attribute => attribute.name === hoverText);
                 return attribute
                     ? getJsfAttributeHover(attribute)
@@ -298,7 +298,7 @@ connection.onCompletion(
                     ?.xmlNs
                     ?.components
                     ?.find(definition => definition.name === match[2])
-                    ?.attribute
+                    ?.attributes
                     // Removes from the collection the attributes already specified on the component
                     .filter(definition => !existingAttributes.includes(definition.name))
                     .map(definition => getJsfAttributeCompletion(xmlns, definition)) ?? [];

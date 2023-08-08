@@ -53,7 +53,7 @@ export function getJsfAttributeCompletion(namespace: ActiveNamespace, attribute:
 }
 
 function getRequiredAttributes(component: Component): string {
-    return component.attribute.filter(attribute => attribute.required)
+    return component.attributes.filter(attribute => attribute.required)
         .map(attribute => `${attribute.name}=""`)
         .join(" ")
 }
