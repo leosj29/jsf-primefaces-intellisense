@@ -18,10 +18,11 @@ export type Component = {
 }
 
 export type Attribute = {
-    name:         string;
-    required:     boolean;
-    defaultValue: unknown;
-    type:         string;
-    description:  string;
-    deprecated:   boolean;
+    name:             string;
+    required:         boolean;
+    defaultValue?:    unknown;
+    methodSignature?: string
+    type:             string;
+    description:      string;
+    deprecated:       boolean;
 }

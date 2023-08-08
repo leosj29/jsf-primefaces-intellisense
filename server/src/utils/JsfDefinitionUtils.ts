@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import { DocumentUri, TextDocument } from 'vscode-languageserver-textdocument';
 import { Attribute, Component } from '../model/JsfLibraryDefinitions';
 import { JsfLibrary } from '../types/JsfFramework';
-import { inAttribute } from './DocumentUtils';
 import path = require('path');
 import { getXmlNamespaces } from './DocumentUtils';
 
@@ -169,7 +168,8 @@ function parseComponentXml(componentUri: DocumentUri): Component | undefined {
         ?.map(attribute => {
             const name = attribute[attributePrefix + "name"];
             const required = attribute[attributePrefix + "reqired"] as boolean ?? false;
-            const defaultValue = attribute[attributePrefix + "default"];
+            const defaultValue = attribute[attributePrefix + "default"] as string;
+            const methodSignature = attribute[attributePrefix + "method-signature"] as string;
             const type = attribute[attributePrefix + "type"] as string ?? "java.lang.Object";
             const description = attribute[attributePrefix + "shortDescription"] as string ?? "";
             const deprecated = attribute[attributePrefix + "deprecated"] as boolean ?? false;
@@ -178,6 +178,7 @@ function parseComponentXml(componentUri: DocumentUri): Component | undefined {
                 name: name,
                 required: required,
                 defaultValue: defaultValue,
+                methodSignature: methodSignature,
                 type: type,
                 description: description,
                 deprecated: deprecated

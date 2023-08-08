@@ -34,8 +34,10 @@ export function getJsfAttributeHover(attribute: Attribute): Hover {
     const documentation = [
         `**${attribute.name}**\n`,
         `${attribute.description}`,
-        `* **Required:** ${attribute.required}`,
-        `* **Type:** ${attribute.type}`
+        attribute.required ? `* **Required:** ${attribute.required}`: null,
+        attribute.type ? `* **Type:** ${attribute.type}` : null,
+        attribute.defaultValue ? `* **Default Value:** ${attribute.defaultValue}` : null,
+        attribute.methodSignature ? `* **Method Signature:** ${attribute.methodSignature}` : null
     ].join('\n');
 
     return {
