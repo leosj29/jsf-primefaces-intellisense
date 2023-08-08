@@ -4,6 +4,8 @@ import {
 } from 'vscode-languageserver-textdocument';
 import {
     CompletionItem,
+    Definition,
+    DefinitionParams,
     DidChangeConfigurationNotification,
     DidChangeWatchedFilesParams,
     FileChangeType,
@@ -11,7 +13,7 @@ import {
     HoverParams,
     InitializeParams,
     InitializeResult,
-    Position,
+    Location,
     ProposedFeatures,
     Range,
     TextDocumentPositionParams,
@@ -24,9 +26,8 @@ import UserSettings from './UserSettings';
 import { DefinitionCache } from './services/DefinitionCache';
 import { NotificationService } from './services/NotificationService';
 import { getJsfAttributeCompletion, getJsfElementCompletion, getJsfNsPrefixCompletion } from './utils/CompletionUtils';
-import { getAttributesInTag, getTagTextBeforPosition, getXmlNamespaces } from './utils/DocumentUtils';
+import { getAttributesInTag, getStartOfTagText, getTagText, getXmlNamespaces } from './utils/DocumentUtils';
 import { getJsfAttributeHover, getJsfElementHover, getJsfNsPrefixHover } from './utils/HooverUtils';
-import { substringAfterLast, substringBeforeFirst } from './utils/StringUtils';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -58,6 +59,7 @@ connection.onInitialize((params: InitializeParams) => {
                 resolveProvider: true,
                 triggerCharacters: ['"', "'", " ", ".", ":"]
             },
+            definitionProvider: true,
             // Enables Hover Support
             hoverProvider: true
         }
@@ -310,6 +312,86 @@ connection.onCompletionResolve(
         return item;
     }
 );
+
+connection.onDefinition(
+    (typeDefinitionParams: DefinitionParams): Definition | null | undefined => {
+        const documentUri = typeDefinitionParams.textDocument.uri;
+        const hoverPosition = typeDefinitionParams.position;
+        const document = documents.get(documentUri);
+
+        if (!document) {
+            return null;
+        }
+
+        const [elementText, textBeforeElement, textAfterElement] = getTagText(document, hoverPosition);
+        const documentSetting = documentSettings.get(documentUri);
+
+        if (!documentSetting) {
+            return null;
+        } else if (!elementText) {
+            return null;
+        //Element Type Definition
+        } else if (/<\/?\w+:$/.test(textBeforeElement)) {
+            let nsPrefix = textBeforeElement.substring(
+                textBeforeElement.lastIndexOf("<") + 1, textBeforeElement.lastIndexOf(":"));
+            if (nsPrefix.startsWith("/")) {
+                nsPrefix = nsPrefix.substring(1);
+            }
+            const xmlNs = documentSetting
+                .activeNamespaces
+                ?.find(namespace => namespace.nsPrefix === nsPrefix)
+                ?.xmlNs;
+            if (!xmlNs) {
+                return null;
+            }
+            const definitionUri = xmlNs.components
+                ?.find(component => component.name === elementText)
+                ?.definitionUri ?? xmlNs.definitionUri;
+                //TODO: Make better range
+            return definitionUri
+                ? Location.create(definitionUri, Range.create(0, 0, 0, 0))
+                : null;
+        //Attribute Type Definition
+        } else if (RegExp(/\s$/).exec(textBeforeElement)) {
+            const match = RegExp(/<(\w+):(\w+)\s.*/).exec(textBeforeElement);
+            if (match?.length !== 3) {
+                return null;
+            } else {
+                const xmlNs = documentSetting
+                    .activeNamespaces
+                    ?.find(namespace => namespace.nsPrefix === match[1])
+                    ?.xmlNs
+
+                if (!xmlNs) {
+                    return null;
+                }
+
+                const definitionUri = xmlNs
+                    ?.components
+                    ?.find(component => component.name === match[2])
+                    ?.definitionUri
+                    ?? xmlNs.definitionUri;
+                return definitionUri
+                    ? Location.create(definitionUri, Range.create(0, 0, 0, 0))
+                    : null;
+            }
+        //XML Namespace Prefix Type Definition
+        } else if (/<\/?$/.test(textBeforeElement) && textAfterElement.startsWith(":")) {
+            const definitionUri = documentSetting
+                .activeNamespaces
+                ?.find(namespace => namespace.nsPrefix === elementText)
+                ?.xmlNs
+                ?.definitionUri;
+            return definitionUri
+                ? Location.create(definitionUri, Range.create(0, 0, 0, 0))
+                : null;
+        } else {
+            return null;
+        }
+    }
+);
+
+
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
