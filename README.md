@@ -1,4 +1,7 @@
 [![JSF and PrimeFaces IntelliSense](https://i.imgur.com/QkqSYdn.png "JSF and PrimeFaces IntelliSense")](https://github.com/leosj29/jsf-primefaces-intellisense)
+
+# For personal reasons, I do not have the necessary time to maintain the current repository, so I have decided to archive it. I encourage interested developers to fork the code and continue with it...
+
 # IntelliSense for JSF and PrimeFaces
 A Visual Studio Code extension that provides diferentes components completion in the HTML, XHTML and JSF. Based on the official Taglib definitions.
 
