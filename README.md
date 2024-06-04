@@ -2,6 +2,15 @@
 
 # For personal reasons, I do not have the necessary time to maintain the current repository, so I have decided to archive it. I encourage interested developers to fork the code and continue with it...
 
+New Repo: https://github.com/primefaces-extensions/faces-intellisense
+
+New Extension: https://marketplace.visualstudio.com/items?itemName=FlipWarthog.faces-intellisense
+
+Archived repo: https://github.com/leosj29/jsf-primefaces-intellisense
+
+Original extension: https://marketplace.visualstudio.com/items?itemName=leosj29.jsf-primefaces-intellisense
+
+
 # IntelliSense for JSF and PrimeFaces
 A Visual Studio Code extension that provides diferentes components completion in the HTML, XHTML and JSF. Based on the official Taglib definitions.
 
